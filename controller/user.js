@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const salt = 10;
 const axios = require('axios');
 const paymentOrder = require("../model/payment/orders");
+const user = require("../model/user");
 /**
  * @Desc : User Registration
  */
@@ -234,7 +235,6 @@ exports.addBalance = async (req, res) => {
             data: data
         };
         const telrRes = await axios(config);
-        // return console.log(telrRes)
         const nPaymentOrder = new paymentOrder({
             user: uId,
             data: telrRes.data,
@@ -307,6 +307,24 @@ exports.getAllPaymentOrders = async (req, res) => {
         })
     }
 }
+exports.generateApiKeyForTest = async (req, res) => {
+    const uId = req.user.user.id;
+    const user = await User.findById(uId);
+    try {
+        const key = genRandomKey(150);
+        user.apikey.test = key;
+        user.apistatus.test = true;
+        await user.save();
+        res.status(200).json({
+            data: user.apikey.test
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
 /**
  * @Desc : Verify email methods
  */
@@ -349,6 +367,15 @@ const sendEmail = async (email, text, id, temp) => {
 //************************************** */
 const genRandomString = (length) => {
     var chars = '0123456789';
+    var charLength = chars.length;
+    var result = '';
+    for (var i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * charLength));
+    }
+    return result;
+}
+const genRandomKey = (length) => {
+    var chars = '!@#$%0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
     var charLength = chars.length;
     var result = '';
     for (var i = 0; i < length; i++) {

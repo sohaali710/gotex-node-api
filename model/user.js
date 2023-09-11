@@ -30,7 +30,21 @@ const userSchema = mongoose.Schema({
         type: ObjectID,
         ref: 'Invitation'
     },
-    daftraId: String
+    daftraId: String,
+    apikey: {
+        test: String,
+        production: String
+    },
+    apistatus: {
+        test: {
+            type: Boolean,
+            default: false
+        },
+        production: {
+            type: Boolean,
+            default: false
+        }
+    }
 })
 
 module.exports = mongoose.model("User", userSchema);
