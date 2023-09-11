@@ -47,44 +47,6 @@ exports.signUp = async (req, res) => {
         res.status(500).json({ msg: err.message })
     }
 }
-exports.marketerSignUp = async (req, res) => {
-    const { name, password, email, mobile, address, location, code } = req.body;
-
-    try {
-        let cr = []
-        if (req.files) {
-            req.files.forEach(f => {
-                cr.push(f.path)
-            });
-        }
-
-        const isExist = await User.findOne({ email })
-        if (isExist) {
-            res.status(400).json({ msg: "error this email is already used" })
-        }
-
-        const hash = bcrypt.hashSync(password, salt);
-        const user = await User.create({
-            name: name,
-            password: hash,
-            email: email,
-            mobile: mobile,
-            address: address,
-            location: location,
-            verified: false,
-            emailCode: genRandomString(4),
-            roll: "marketer",
-        })
-
-        if (user) {
-            sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs");
-            res.status(200).json({ msg: "ok", user })
-        }
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ msg: err.message })
-    }
-}
 exports.logIn = async (req, res) => {
     const { email, password } = req.body
 
@@ -193,7 +155,8 @@ exports.forgetPasswordEmail = async (req, res) => {
     }
 }
 exports.setNewPassword = async (req, res) => {
-    const { password, code } = req.body
+    const { password } = req.body
+    const { code } = req.params
 
     try {
         const user = await User.findOne({ emailCode: code });
