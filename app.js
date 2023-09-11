@@ -13,6 +13,7 @@ const { upload, uploadClintReceipts } = require('./middleware/fileUpload')
 
 const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')
+const saeeRoute = require('./routes/saee')
 // const companiesRoute = require('./routes/companies')
 
 const PORT = process.env.PORT
@@ -33,6 +34,7 @@ app.post('/user/signup', upload.array('cr'));
 // Routes
 app.use('/admin', adminRoute);
 app.use('/user', userRoute);
+app.use("/saee", saeeRoute);
 // app.use('/companies', companiesRoute);
 
 app.all("*", (req, res, next) => {

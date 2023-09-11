@@ -5,13 +5,14 @@ const splOrderSchema = mongoose.Schema({
     company: String,
     ordernumber: String,
     data: Object,
-    reciver: Object,
-    sender: Object,
     paytype: String,
     price: Number,
     marktercode: String,
     createdate: String,
-    inovicedaftra: Object
+    inovicedaftra: Object,
+
+    sender: Object,
+    receiver: Object
 })
 
 module.exports = mongoose.model("splOrder", splOrderSchema);
