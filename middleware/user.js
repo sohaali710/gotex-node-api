@@ -60,7 +60,7 @@ exports.isAuth = (req, res, next) => {
                 return res.status(400).json({ msg: err })
             }
 
-            if (user.data.user.roll == 'user' || user.data.user.roll == 'marketer') {
+            if (user.data.user.roll == 'user') {
                 req.user = user.data
                 next();
             } else {
@@ -70,26 +70,6 @@ exports.isAuth = (req, res, next) => {
     } catch (err) {
         console.log(`user error : ${err}`)
     }
-}
-
-exports.isMarketer = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) {
-        return res.status(400).json({ msg: "token is required" })
-    }
-
-    jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-        if (err) {
-            return res.status(400).json({ msg: err })
-        }
-        if (user.data.user.roll == 'marketer') {
-            req.user = user.data
-            next();
-        } else {
-            res.status(304).json({ msg: "not allowed" })
-        }
-    })
 }
 
 exports.isVerified = (req, res, next) => {
