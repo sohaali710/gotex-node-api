@@ -44,7 +44,10 @@ exports.signUp = async (req, res) => {
         }
     } catch (err) {
         console.log(err)
-        res.status(500).json({ msg: err.message })
+        res.status(500).json({
+            msg: "server error",
+            error: err.message
+        })
     }
 }
 exports.logIn = async (req, res) => {
@@ -150,7 +153,8 @@ exports.forgetPasswordEmail = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
@@ -173,7 +177,8 @@ exports.setNewPassword = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
