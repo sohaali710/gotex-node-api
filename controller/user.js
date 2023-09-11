@@ -21,7 +21,7 @@ exports.signUp = async (req, res) => {
 
         const isExist = await User.findOne({ email })
         if (isExist) {
-            res.status(400).json({ msg: "error this email is already used" })
+            return res.status(400).json({ msg: "error this email is already used" })
         }
 
         const hash = bcrypt.hashSync(password, salt);
@@ -53,11 +53,11 @@ exports.logIn = async (req, res) => {
     try {
         const userDb = await User.findOne({ email })
         if (!userDb) {
-            res.status(400).json({ msg: "wrong email or password" })
+            return res.status(400).json({ msg: "wrong email or password" })
         }
 
         if (!bcrypt.compareSync(password, userDb.password)) {
-            res.status(400).json({ msg: "wrong email or password" })
+            return res.status(400).json({ msg: "wrong email or password" })
         }
 
         const user = {
@@ -89,7 +89,7 @@ exports.activateUser = async (req, res) => {
     try {
         const user = await User.findById(id)
         if (!user) {
-            res.status(400).json({ msg: "error this user doesn't exist" })
+            return res.status(400).json({ msg: "error this user doesn't exist" })
         }
 
         if (user.emailCode !== code) {
@@ -113,7 +113,7 @@ exports.reSendActivateCode = async (req, res) => {
     try {
         const user = await User.findById(id)
         if (!user) {
-            res.status(400).json({ msg: "error this user doesn't exist" })
+            return res.status(400).json({ msg: "error this user doesn't exist" })
         }
 
         user.emailCode = genRandomString(4);
