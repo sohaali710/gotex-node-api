@@ -9,7 +9,10 @@ const userSchema = mongoose.Schema({
     address: String,
     location: String,
     emailCode: String,
-    roll: String,
+    roll: {
+        type: String,
+        default: "user"
+    },
     verified: {
         type: Boolean,
         default: false

@@ -36,24 +36,20 @@ exports.logIn = (req, res) => {
         }
     } catch (err) {
         res.status(500).json({
-            msg: "Server error"
+            msg: err
         })
     }
 }
 
-exports.getAllUsers = (req, res) => {
-    User.find()
-        .then(u => {
-            res.status(200).json({
-                data: u
-            })
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+        res.status(200).json({ data: { users } })
+    } catch (err) {
+        res.status(500).json({
+            msg: err
         })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                msg: err
-            })
-        })
+    }
 }
 exports.getAllOrders = async (req, res) => {
     try {
@@ -62,10 +58,9 @@ exports.getAllOrders = async (req, res) => {
         const aramexOrders = await AramexOrders.find().populate("user");
         const smsaOrders = await SmsaOrders.find().populate("user");
         const anwanOrders = await AnwanOrders.find().populate("user");
+
         let orders = [...saeeOrders, ...gltOrders, ...aramexOrders, ...smsaOrders, ...anwanOrders];
-        res.status(200).json({
-            data: orders
-        })
+        res.status(200).json({ data: { orders } })
     } catch (err) {
         console.log(err);
         res.status(500).json({
@@ -74,40 +69,39 @@ exports.getAllOrders = async (req, res) => {
     }
 
 }
-exports.addWalletToUser = (req, res) => {
-    const deposit = req.body.deposit;
-    const id = req.body.id;
-    User.findById(id)
-        .then(u => {
-            u.wallet = u.wallet + deposit;
-            return u.save()
+
+exports.addWalletToUser = async (req, res) => {
+    const { id, deposit } = req.body
+
+    try {
+        const user = await User.findById(id)
+        if (!user) {
+            res.status(400).json({ msg: "This user doesn't exist" })
+        }
+
+        user.wallet = user.wallet + deposit;
+        await user.save()
+
+        res.status(200).json({ msg: "ok" })
+    } catch (err) {
+        res.status(500).json({
+            msg: err
         })
-        .then(u => {
-            res.status(200).json({
-                msg: "ok"
-            })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                msg: err
-            })
-        })
+    }
 }
 exports.proofCrForUser = async (req, res) => {
+    const email = req.body.email;
+
     try {
-        const email = req.body.email;
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({
-                msg: "email is required"
-            })
+            return res.status(400).json({ msg: "Wrong email" })
         }
-        user.iscrproofed = true;
+
+        user.isCrProofed = true;
         await user.save()
-        return res.status(200).json({
-            msg: "ok"
-        })
+
+        res.status(200).json({ msg: "ok" })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -115,28 +109,23 @@ exports.proofCrForUser = async (req, res) => {
         })
     }
 }
-exports.unProofCrForUser = (req, res) => {
+exports.unProofCrForUser = async (req, res) => {
     const email = req.body.email;
-    User.findOne({ email: email })
-        .then(u => {
-            if (!u) {
-                return res.status(400).json({
-                    msg: "erro email not found"
-                })
-            } else {
-                u.iscrproofed = false;
-                u.save()
-                    .then(u => {
-                        return res.status(200).json({
-                            msg: "ok"
-                        })
-                    })
-            }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ msg: "Wrong email" })
+        }
+
+        user.isCrProofed = false;
+        await user.save()
+
+        res.status(200).json({ msg: "ok" })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err
         })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                error: "err"
-            })
-        })
+    }
 }
