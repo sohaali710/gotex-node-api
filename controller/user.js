@@ -72,6 +72,7 @@ exports.logIn = async (req, res) => {
             isCrProofed: userDb.isCrProofed,
             daftraId: userDb.daftraId
         }
+        console.log(user)
         const token = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + (60 * 60),
             data: { user },

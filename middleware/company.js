@@ -9,14 +9,15 @@ const Imile = require("../model/companies/imile");
 const Jt = require("../model/companies/jt");
 
 exports.saeeCheck = async (req, res, next) => {
-    const { id, roll } = req.user.user
+    const id = req.body.userId;
+    const roll = "user";
     const { cod, weight } = req.body; // change cod to number
     let shipmentValue = req.body.shipmentValue; // new number must
 
     try {
         const user = await User.findById(id);
         const saee = await Saee.findOne();
-
+        console.log(user)
         let weightPrice = weight <= 15 ? 0 : ((weight - 15) * saee.kgprice);
         let shipPrice = 0
 
@@ -24,12 +25,7 @@ exports.saeeCheck = async (req, res, next) => {
             if (!shipmentValue) shipmentValue = 0;
 
             if (roll == "user") {
-                if (user.inv) {
-                    let codPrice = user.inv.companies[0].cod;
-                    shipPrice = codPrice;
-                } else {
-                    shipPrice = saee.codprice;
-                }
+                shipPrice = saee.codprice;
             } else {
                 if (cod > saee.maxcodmarkteer) {
                     return res.status(400).json({ msg: "cod price is grater than your limit" })
@@ -45,12 +41,7 @@ exports.saeeCheck = async (req, res, next) => {
             next()
         } else {
             if (roll == "user") {
-                if (user.inv) {
-                    let onlinePrice = user.inv.companies[0].onlinePayment;
-                    shipPrice = onlinePrice;
-                } else {
-                    shipPrice = saee.userprice;
-                }
+                shipPrice = saee.userprice;
             } else {
                 shipPrice = saee.marketerprice;
             }
