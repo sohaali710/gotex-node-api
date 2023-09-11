@@ -13,6 +13,7 @@ const { upload, uploadClintReceipts } = require('./middleware/fileUpload')
 
 const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')
+// const companiesRoute = require('./routes/companies')
 
 const PORT = process.env.PORT
 
@@ -32,6 +33,7 @@ app.post('/user/signup', upload.array('cr'));
 // Routes
 app.use('/admin', adminRoute);
 app.use('/user', userRoute);
+// app.use('/companies', companiesRoute);
 
 app.all("*", (req, res, next) => {
     res.status(400).json({ msg: `Can't ${req.method} with this route: ${req.originalUrl}` })

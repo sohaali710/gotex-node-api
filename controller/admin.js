@@ -38,7 +38,7 @@ exports.logIn = (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find()
-        res.status(200).json({ data: { users } })
+        res.status(200).json({ results: users.length, data: { users } })
     } catch (err) {
         res.status(500).json({
             msg: "server error",
