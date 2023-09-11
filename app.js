@@ -27,7 +27,6 @@ dbConnection()
 
 // File Upload
 app.post('/user/signup', upload.array('cr'));
-app.post('/user/marketer-signup', upload.array('cr'));
 // app.post('/invitation/invited-user-signup', upload.array('cr'));
 
 // Routes
