@@ -1,15 +1,5 @@
 const User = require("../model/user");
 const jwt = require("jsonwebtoken");
-const SmsaOrders = require("../model/orders/smsaOrders");
-const AnwanOrders = require("../model/orders/anwanOrders");
-const AramexOrders = require("../model/orders/aramexOrders");
-const GltOrders = require("../model/orders/gltOrders");
-const SaeeOrders = require("../model/orders/saeeOrders");
-// const Saee = require("../model/companies/saee");
-// const Smsa = require("../model/companies/smsa");
-// const Anwan = require("../model/companies/anwan");
-// const Aramex = require("../model/companies/aramex");
-// const Glt = require("../model/companies/glt");
 
 
 exports.logIn = (req, res) => {
@@ -36,47 +26,33 @@ exports.logIn = (req, res) => {
         }
     } catch (err) {
         res.status(500).json({
-            msg: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
 
+/**
+ * @Desc : User CRUD
+ */
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find()
         res.status(200).json({ data: { users } })
     } catch (err) {
         res.status(500).json({
-            msg: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
-exports.getAllOrders = async (req, res) => {
-    try {
-        const saeeOrders = await SaeeOrders.find().populate("user");
-        const gltOrders = await GltOrders.find().populate("user");
-        const aramexOrders = await AramexOrders.find().populate("user");
-        const smsaOrders = await SmsaOrders.find().populate("user");
-        const anwanOrders = await AnwanOrders.find().populate("user");
-
-        let orders = [...saeeOrders, ...gltOrders, ...aramexOrders, ...smsaOrders, ...anwanOrders];
-        res.status(200).json({ data: { orders } })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({
-            msg: err
-        })
-    }
-
-}
-
 exports.addWalletToUser = async (req, res) => {
     const { id, deposit } = req.body
 
     try {
         const user = await User.findById(id)
         if (!user) {
-            res.status(400).json({ msg: "This user doesn't exist" })
+            return res.status(400).json({ msg: "This user doesn't exist" })
         }
 
         user.wallet = user.wallet + deposit;
@@ -85,7 +61,8 @@ exports.addWalletToUser = async (req, res) => {
         res.status(200).json({ msg: "ok" })
     } catch (err) {
         res.status(500).json({
-            msg: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
@@ -105,7 +82,8 @@ exports.proofCrForUser = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            msg: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
@@ -125,7 +103,8 @@ exports.unProofCrForUser = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            msg: err
+            msg: "server error",
+            error: err.message
         })
     }
 }
