@@ -176,15 +176,19 @@ exports.edit = (req, res) => {
         })
 }
 exports.trackingOrderByNum = async (req, res) => {
-    const orderId = req.body.orderId;
+    const { orderId, userId } = req.body;
     const order = await SaeeOrder.findById(orderId);
+    // const ordernumber = order.ordernumber.split('/')[1].split('gotex')[0]
+
+    console.log(order.data.waybill)
     axios({
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'secret': `${process.env.SAEE_KEY_P}`
         },
-        url: `https://corporate.saeex.com/tracking/ordernumber?ordernumber=${order.ordernumber}`
+        url: `https://corporate.k-w-h.com/tracking/ordernumber`,
+        ordernumber: order.data.waybill
     })
         .then(response => {
             res.status(200).json({
