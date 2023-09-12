@@ -195,3 +195,45 @@ exports.trackingOrderByNum = async (req, res) => {
             console.log(err)
         })
 }
+exports.cancelOrder = async (req, res) => {
+    let { orderId, userId } = req.body;
+    const order = await SaeeOrder.findById(orderId);
+    try {
+        if (!order || order.user != userId) {
+            return res.status(400).json({
+                err: "order not found"
+            })
+        }
+        let data = JSON.stringify({
+            "waybill": order.data.waybill,
+            "canceled_by": 1
+        });
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://corporate.k-w-h.com/deliveryrequest/cancelpickup',
+            headers: {
+                'secret': process.env.SAEE_KEY_P,
+                'Content-Type': 'application/json',
+            },
+            data: data
+        };
+
+        const saeeRes = await axios.request(config);
+        if (saeeRes.data.success == true) {
+            return res.status(200).json({
+                data: saeeRes.data
+            })
+        } else {
+            return res.status(400).json({
+                data: saeeRes.data
+            })
+        }
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
+    }
+}
