@@ -222,9 +222,9 @@ exports.addBalance = async (req, res) => {
                 "description": "test payment"
             },
             "return": {
-                "authorised": `http://localhost:3000/user/checkpayment/authorised/${uId}/${code}`,
-                "declined": `http://localhost:3000/user/checkpayment/declined/${uId}/${code}`,
-                "cancelled": `http://localhost:3000/user/checkpayment/cancelled/${uId}/${code}`
+                "authorised": `https://dashboard.go-tex.net/gotex-co-test/user/checkpayment/authorised/${uId}/${code}`,
+                "declined": `https://dashboard.go-tex.net/gotex-co-test/user/checkpayment/declined/${uId}/${code}`,
+                "cancelled": `https://dashboard.go-tex.net/gotex-co-test/user/checkpayment/cancelled/${uId}/${code}`
             }
         });
         let config = {
