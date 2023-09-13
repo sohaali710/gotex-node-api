@@ -9,7 +9,7 @@ exports.createUserOrder = async (req, res) => {
     const {
         p_name, p_city, p_mobile, p_streetaddress,
         c_name, c_city, c_mobile, c_streetaddress, weight, quantity,
-        cod, daftraid, description, userId } = req.body
+        cod, description, userId } = req.body
 
     const totalShipPrice = res.locals.totalShipPrice;
     const cashondelivery = res.locals.codAmount;
@@ -29,7 +29,7 @@ exports.createUserOrder = async (req, res) => {
 
             p_name, p_city, p_mobile, p_streetaddress,
             c_name, c_city, c_mobile, c_streetaddress, weight, quantity,
-            cod, daftraid, description,
+            cod, description,
 
             ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
             sendername: nameCode,
