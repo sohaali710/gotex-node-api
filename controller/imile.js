@@ -248,6 +248,8 @@ exports.edit = (req, res) => {
 cron.schedule('0 */2 * * *', async () => {
     try {
         const imile = await Imile.findOne();
+        console.log('********')
+        console.log(imile)
         let data = JSON.stringify({
             "customerId": process.env.imile_customerid,
             "sign": process.env.imile_sign,
@@ -271,6 +273,7 @@ cron.schedule('0 */2 * * *', async () => {
             data: data
         };
         const tokenRes = await axios(config);
+        console.log('****')
         console.log(tokenRes.data.data.accessToken)
         if (tokenRes.data.code == '200') {
             imile.token = tokenRes.data.data.accessToken;
@@ -279,5 +282,8 @@ cron.schedule('0 */2 * * *', async () => {
         console.log(imile)
     } catch (err) {
         console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
     }
 });
