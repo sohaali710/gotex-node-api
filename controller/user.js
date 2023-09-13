@@ -208,7 +208,7 @@ exports.addBalance = async (req, res) => {
     const amount = req.body.amount;
     const uId = req.user.user.id;
     const code = genRandomString(10)
-    try {
+    try { sasas
         let data = JSON.stringify({
             "method": "create",
             "store": process.env.TELR_STORE_ID,
