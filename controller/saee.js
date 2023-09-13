@@ -38,18 +38,15 @@ exports.createUserOrder = async (req, res) => {
             sendercity: p_city,
             // sendercountry: "SA"
         }
-        console.log('*************')
-        console.log(data)
 
-        const response = await axios({
+        const config = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json;charset=utf-8' },
             url: 'https://k-w-h.com/deliveryrequest/newpickup',
             data: data
-        })
-        console.log('*************')
-        console.log(response)
+        }
 
+        const response = await axios(config)
         if (!response.data.success) {
             return res.status(400).json({ msg: response.data })
         } else {
