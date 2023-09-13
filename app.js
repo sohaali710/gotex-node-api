@@ -24,7 +24,7 @@ app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors({
-    origin: '*',
+    origin: 'gotex-app2.vercel.app',
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
 
