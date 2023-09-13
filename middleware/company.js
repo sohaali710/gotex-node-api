@@ -424,15 +424,14 @@ exports.splCheck = async (req, res, next) => {
     }
 }
 exports.imileCheck = async (req, res, next) => {
+    const id = req.body.userId;
+    const roll='user';
+    const {cod,weight} = req.body
+    let shipmentValue = req.body.goodsValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        let shipmentValue = req.body.goodsValue; // new number must
-        /*********************************************** */
         const imile = await Imile.findOne();
-        const user = await User.findById(userId);
+        const user = await User.findById(id);
         /*********************************************** */
         if (weight <= 15) {
             let weightPrice = 0;
