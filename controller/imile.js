@@ -126,6 +126,8 @@ exports.addClient = async (req, res) => {
 
     try {
         const imile = await Imile.findOne();
+        console.log('imile.token')
+        console.log(imile.token)
         let data = JSON.stringify({
             "customerId": process.env.imile_customerid,
             "sign": process.env.imile_sign,
@@ -177,6 +179,56 @@ exports.addClient = async (req, res) => {
         })
 
         res.status(200).json({ data: newClient })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
+        })
+    }
+}
+exports.getSticker = async (req, res) => {
+    const orderCodeNo = req.params.orderCodeNo;
+
+    try {
+        const order = await ImileOrders.findById(orderCodeNo)
+        if (!order) {
+            return res.send(400).json({ msg: 'Order not found' })
+        }
+
+        const data = JSON.stringify({
+            "customerId": "C21018568",
+            "sign": "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJCsjrUxRgqrTDMr",
+            "accessToken": "7c1155ae-aca6-42c0-8df6-7409c434b3ca",
+            "signMethod": "SimpleKey",
+            "format": "json",
+            "version": "1.0.0",
+            "timestamp": 1648883951481,
+            "timeZone": "+4",
+            "param": {
+                "customerId": "C2102224",
+                "orderCodeList": [
+                    orderCodeNo
+                ],
+                "orderCodeType": 2
+            }
+        })
+
+        const config = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'secret': `${process.env.SAEE_KEY_P}`
+            },
+            url: `https://openapi.52imile.cn/client/order/batchRePrintOrder`,
+            data
+        }
+
+        const response = await axios(config)
+        if (response.data.message !== 'success') {
+            return res.status(400).json({ msg: response.data })
+        }
+
+        res.status(200).json({ msg: "ok", data: bill.data })
     } catch (err) {
         console.log(err)
         res.status(500).json({
