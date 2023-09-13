@@ -12,14 +12,14 @@ exports.saeeCheck = async (req, res, next) => {
     const id = req.body.userId;
     const roll = "user";
     const { cod, weight } = req.body; // change cod to number
-    let shipmentValue = req.body.shipmentValue; // new number must
+    var shipmentValue = req.body.shipmentValue; // new number must
 
     try {
         const user = await User.findById(id);
         const saee = await Saee.findOne();
         console.log(user)
-        let weightPrice = weight <= 15 ? 0 : ((weight - 15) * saee.kgprice);
-        let shipPrice = 0
+        var weightPrice = weight <= 15 ? 0 : ((weight - 15) * saee.kgprice);
+        var shipPrice = 0
 
         if (cod) {
             if (!shipmentValue) shipmentValue = 0;
@@ -46,8 +46,79 @@ exports.saeeCheck = async (req, res, next) => {
                 shipPrice = saee.marketerprice;
             }
 
-            if (user.wallet < (shipPrice + weightPrice)) {
-                return res.status(400).json({ msg: "Your wallet balance is not enough to make the shipment" })
+            if (user.walvar < (shipPrice + weightPrice)) {
+                return res.status(400).json({ msg: "Your walvar balance is not enough to make the shipment" })
+            }
+            res.locals.codAmount = 0;
+            res.locals.totalShipPrice = shipPrice + weightPrice;
+            next()
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
+        })
+    }
+}
+exports.imileCheck = async (req, res, next) => {
+    const id = req.body.userId;
+    const roll = 'user';
+    const { cod, weight } = req.body
+    var shipmentValue = req.body.goodsValue; // new number must
+
+    try {
+        const imile = await Imile.findOne();
+        const user = await User.findById(id);
+        /*********************************************** */
+        if (weight <= 15) {
+            var weightPrice = 0;
+        } else {
+            var weightPrice = (weight - 15) * imile.kgprice;
+        }
+        /*********************************************** */
+        if (cod) {
+            if (!shipmentValue) {
+                shipmentValue = 0
+            }
+            if (roll == "user") {
+                if (user.inv) {
+                    var codPrice = user.inv.companies[3].cod;
+                    var shipPrice = codPrice;
+                } else {
+                    var shipPrice = imile.codprice;
+                }
+            } else {
+                if (cod > imile.maxcodmarkteer) {
+                    return res.status(400).json({
+                        msg: "cod price is grater than your limit"
+                    })
+                }
+                if (cod < imile.mincodmarkteer) {
+                    return res.status(400).json({
+                        msg: "cod price is less than your limit"
+                    })
+                }
+                var shipPrice = cod;
+            }
+            const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
+            res.locals.codAmount = codAmount;
+            res.locals.totalShipPrice = shipPrice + weightPrice;
+            next()
+        } else {
+            if (roll == "user") {
+                if (user.inv) {
+                    var onlinePrice = user.inv.companies[3].onlinePayment;
+                    var shipPrice = onlinePrice;
+                } else {
+                    var shipPrice = imile.userprice;
+                }
+            } else {
+                var shipPrice = imile.marketerprice;
+            }
+            if (user.walvar < (shipPrice + weightPrice)) {
+                return res.status(400).json({
+                    msg: "Your walvar balance is not enough to make the shipment"
+                })
             }
             res.locals.codAmount = 0;
             res.locals.totalShipPrice = shipPrice + weightPrice;
@@ -66,15 +137,15 @@ exports.gltCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.weight;
-        let shipmentValue = req.body.shipmentValue; // new number must
+        var shipmentValue = req.body.shipmentValue; // new number must
         /*********************************************** */
         const glt = await Glt.findOne();
         const user = await User.findById(userId);
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * glt.kgprice;
+            var weightPrice = (weight - 15) * glt.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -83,10 +154,10 @@ exports.gltCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[1].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[1].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = glt.codprice;
+                    var shipPrice = glt.codprice;
                 }
             } else {
                 if (cod > glt.maxcodmarkteer) {
@@ -99,7 +170,7 @@ exports.gltCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             res.locals.codAmount = codAmount;
@@ -108,17 +179,17 @@ exports.gltCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[1].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[1].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = glt.userprice;
+                    var shipPrice = glt.userprice;
                 }
             } else {
-                let shipPrice = glt.marketerprice;
+                var shipPrice = glt.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;
@@ -138,15 +209,15 @@ exports.aramexCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.weight;
-        let shipmentValue = req.body.shipmentValue; // new number must
+        var shipmentValue = req.body.shipmentValue; // new number must
         /*********************************************** */
         const aramex = await Aramex.findOne();
         const user = await User.findById(userId);
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * aramex.kgprice;
+            var weightPrice = (weight - 15) * aramex.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -155,10 +226,10 @@ exports.aramexCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[3].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[3].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = aramex.codprice;
+                    var shipPrice = aramex.codprice;
                 }
             } else {
                 if (cod > aramex.maxcodmarkteer) {
@@ -171,7 +242,7 @@ exports.aramexCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             res.locals.codAmount = codAmount;
@@ -180,17 +251,17 @@ exports.aramexCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[3].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[3].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = aramex.userprice;
+                    var shipPrice = aramex.userprice;
                 }
             } else {
-                let shipPrice = aramex.marketerprice;
+                var shipPrice = aramex.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;
@@ -210,15 +281,15 @@ exports.smsaCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.weight;
-        let shipmentValue = req.body.shipmentValue; // new number must
+        var shipmentValue = req.body.shipmentValue; // new number must
         /*********************************************** */
         const smsa = await Smsa.findOne();
         const user = await User.findById(userId);
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * smsa.kgprice;
+            var weightPrice = (weight - 15) * smsa.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -227,10 +298,10 @@ exports.smsaCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[2].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[2].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = smsa.codprice;
+                    var shipPrice = smsa.codprice;
                 }
             } else {
                 if (cod > smsa.maxcodmarkteer) {
@@ -243,7 +314,7 @@ exports.smsaCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             res.locals.codAmount = codAmount;
@@ -252,17 +323,17 @@ exports.smsaCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[2].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[2].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = smsa.userprice;
+                    var shipPrice = smsa.userprice;
                 }
             } else {
-                let shipPrice = smsa.marketerprice;
+                var shipPrice = smsa.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;
@@ -282,15 +353,15 @@ exports.anwanCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.weight;
-        let shipmentValue = req.body.shipmentValue; // new number must
+        var shipmentValue = req.body.shipmentValue; // new number must
         /*********************************************** */
         const anwan = await Anwan.findOne();
         const user = await User.findById(userId).populate("inv");
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * anwan.kgprice;
+            var weightPrice = (weight - 15) * anwan.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -299,10 +370,10 @@ exports.anwanCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[4].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[4].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = anwan.codprice;
+                    var shipPrice = anwan.codprice;
                 }
             } else {
                 if (cod > anwan.maxcodmarkteer) {
@@ -315,7 +386,7 @@ exports.anwanCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             res.locals.codAmount = codAmount;
@@ -324,17 +395,17 @@ exports.anwanCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[4].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[4].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = anwan.userprice;
+                    var shipPrice = anwan.userprice;
                 }
             } else {
-                let shipPrice = anwan.marketerprice;
+                var shipPrice = anwan.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;
@@ -354,15 +425,15 @@ exports.splCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.Weight;
-        let shipmentValue = req.body.shipmentValue; // new number must
+        var shipmentValue = req.body.shipmentValue; // new number must
         /*********************************************** */
         const spl = await Spl.findOne();
         const user = await User.findById(userId);
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * spl.kgprice;
+            var weightPrice = (weight - 15) * spl.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -371,10 +442,10 @@ exports.splCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[0].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[0].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = spl.codprice;
+                    var shipPrice = spl.codprice;
                 }
             } else {
                 if (cod > spl.maxcodmarkteer) {
@@ -387,7 +458,7 @@ exports.splCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             console.log(shipPrice)
@@ -399,88 +470,17 @@ exports.splCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[0].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[0].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = spl.userprice;
+                    var shipPrice = spl.userprice;
                 }
             } else {
-                let shipPrice = spl.marketerprice;
+                var shipPrice = spl.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
-                })
-            }
-            res.locals.codAmount = 0;
-            res.locals.totalShipPrice = shipPrice + weightPrice;
-            next()
-        }
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err.message
-        })
-    }
-}
-exports.imileCheck = async (req, res, next) => {
-    const id = req.body.userId;
-    const roll='user';
-    const {cod,weight} = req.body
-    let shipmentValue = req.body.goodsValue; // new number must
-
-    try {
-        const imile = await Imile.findOne();
-        const user = await User.findById(id);
-        /*********************************************** */
-        if (weight <= 15) {
-            let weightPrice = 0;
-        } else {
-            let weightPrice = (weight - 15) * imile.kgprice;
-        }
-        /*********************************************** */
-        if (cod) {
-            if (!shipmentValue) {
-                shipmentValue = 0
-            }
-            if (userRoll == "user") {
-                if (user.inv) {
-                    let codPrice = user.inv.companies[3].cod;
-                    let shipPrice = codPrice;
-                } else {
-                    let shipPrice = imile.codprice;
-                }
-            } else {
-                if (cod > imile.maxcodmarkteer) {
-                    return res.status(400).json({
-                        msg: "cod price is grater than your limit"
-                    })
-                }
-                if (cod < imile.mincodmarkteer) {
-                    return res.status(400).json({
-                        msg: "cod price is less than your limit"
-                    })
-                }
-                let shipPrice = cod;
-            }
-            const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
-            res.locals.codAmount = codAmount;
-            res.locals.totalShipPrice = shipPrice + weightPrice;
-            next()
-        } else {
-            if (userRoll == "user") {
-                if (user.inv) {
-                    let onlinePrice = user.inv.companies[3].onlinePayment;
-                    let shipPrice = onlinePrice;
-                } else {
-                    let shipPrice = imile.userprice;
-                }
-            } else {
-                let shipPrice = imile.marketerprice;
-            }
-            if (user.wallet < (shipPrice + weightPrice)) {
-                return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;
@@ -500,15 +500,15 @@ exports.jtCheck = async (req, res, next) => {
         const userId = req.user.user.id;
         const userRoll = req.user.user.roll;
         const weight = req.body.weight;
-        let shipmentValue = req.body.goodsValue; // new number must
+        var shipmentValue = req.body.goodsValue; // new number must
         /*********************************************** */
         const jt = await Jt.findOne();
         const user = await User.findById(userId);
         /*********************************************** */
         if (weight <= 15) {
-            let weightPrice = 0;
+            var weightPrice = 0;
         } else {
-            let weightPrice = (weight - 15) * jt.kgprice;
+            var weightPrice = (weight - 15) * jt.kgprice;
         }
         /*********************************************** */
         if (cod) {
@@ -517,10 +517,10 @@ exports.jtCheck = async (req, res, next) => {
             }
             if (userRoll == "user") {
                 if (user.inv) {
-                    let codPrice = user.inv.companies[3].cod;
-                    let shipPrice = codPrice;
+                    var codPrice = user.inv.companies[3].cod;
+                    var shipPrice = codPrice;
                 } else {
-                    let shipPrice = jt.codprice;
+                    var shipPrice = jt.codprice;
                 }
             } else {
                 if (cod > jt.maxcodmarkteer) {
@@ -533,7 +533,7 @@ exports.jtCheck = async (req, res, next) => {
                         msg: "cod price is less than your limit"
                     })
                 }
-                let shipPrice = cod;
+                var shipPrice = cod;
             }
             const codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
             res.locals.codAmount = codAmount;
@@ -542,17 +542,17 @@ exports.jtCheck = async (req, res, next) => {
         } else {
             if (userRoll == "user") {
                 if (user.inv) {
-                    let onlinePrice = user.inv.companies[3].onlinePayment;
-                    let shipPrice = onlinePrice;
+                    var onlinePrice = user.inv.companies[3].onlinePayment;
+                    var shipPrice = onlinePrice;
                 } else {
-                    let shipPrice = jt.userprice;
+                    var shipPrice = jt.userprice;
                 }
             } else {
-                let shipPrice = jt.marketerprice;
+                var shipPrice = jt.marketerprice;
             }
-            if (user.wallet < (shipPrice + weightPrice)) {
+            if (user.walvar < (shipPrice + weightPrice)) {
                 return res.status(400).json({
-                    msg: "Your wallet balance is not enough to make the shipment"
+                    msg: "Your walvar balance is not enough to make the shipment"
                 })
             }
             res.locals.codAmount = 0;

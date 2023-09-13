@@ -7,9 +7,9 @@ const ImileClients = require("../model/clients/imileClients");
 const Daftra = require("../modules/daftra");
 
 exports.createOrder = async (req, res) => {
-    const { p_company, c_company, c_name, c_mobile, c_city, c_area, c_street, c_address,
-        markterCode, desc, cod, goodsValue, skuName, skuDetailList, weight, daftraid,
-        userId } = req.body
+    const { p_company,
+        c_company, c_name, c_mobile, c_city, c_street, c_address, weight,
+        cod, goodsValue, skuName, skuDetailList, userId } = req.body
     // const c_zipcode = req.bode.c_zipcode;
 
     let ordersNum = await ImileOrders.count();
@@ -17,17 +17,16 @@ exports.createOrder = async (req, res) => {
     const user = await User.findById(userId);
     const totalShipPrice = res.locals.totalShipPrice;
     const shipmentDate = Date.now();
-    const token = Imile.token;
 
     try {
         if (cod) {
-            const codAmount = res.locals.codAmount;
-            const PaymentType = "p";
-            const paymentMethod = 100;
+            var codAmount = res.locals.codAmount;
+            var PaymentType = "p";
+            var paymentMethod = 100;
         } else {
-            const codAmount = 0;
-            const PaymentType = "P";
-            const paymentMethod = 200;
+            var codAmount = 0;
+            var PaymentType = "P";
+            var paymentMethod = 200;
         }
 
         let data = JSON.stringify({
@@ -91,7 +90,8 @@ exports.createOrder = async (req, res) => {
             data: data
         };
 
-        const response = axios(config)
+        const response = await axios(config)
+        console.log(response.data)
         if (response.data.code != '200') {
             res.status(400).json({
                 msg: response.data
@@ -101,7 +101,7 @@ exports.createOrder = async (req, res) => {
             user.wallet = cod ? user.wallet : user.wallet - totalShipPrice;
             await user.save()
 
-            const order = new ImileOrders({
+            const order = await ImileOrders.create({
                 user: userId,
                 company: "imile",
                 ordernumber: ordersNum + 2,
@@ -111,7 +111,7 @@ exports.createOrder = async (req, res) => {
                 createdate: new Date()
             })
 
-            res.status(200).json({ data: { order } })
+            res.status(200).json({ data: order })
         }
     } catch (err) {
         console.log(err)
@@ -126,8 +126,7 @@ exports.addClient = async (req, res) => {
 
     try {
         const imile = await Imile.findOne();
-        console.log('imile.token')
-        console.log(imile.token)
+
         let data = JSON.stringify({
             "customerId": process.env.imile_customerid,
             "sign": process.env.imile_sign,
@@ -187,25 +186,28 @@ exports.addClient = async (req, res) => {
     }
 }
 exports.getSticker = async (req, res) => {
-    const orderCodeNo = req.params.orderCodeNo;
+    const orderId = req.params.orderId;
 
     try {
-        const order = await ImileOrders.findById(orderCodeNo)
+        const imile = await Imile.findOne();
+        const order = await ImileOrders.findById(orderId)
         if (!order) {
-            return res.send(400).json({ msg: 'Order not found' })
+            return res.status(400).json({ msg: 'Order not found' })
         }
+        const orderCodeNo = order.data.data.expressNo
+        console.log(orderCodeNo)
 
         const data = JSON.stringify({
-            "customerId": "C21018568",
-            "sign": "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJCsjrUxRgqrTDMr",
-            "accessToken": "7c1155ae-aca6-42c0-8df6-7409c434b3ca",
+            "customerId": process.env.imile_customerid,
+            "sign": process.env.imile_sign,
+            "accessToken": imile.token,
             "signMethod": "SimpleKey",
             "format": "json",
             "version": "1.0.0",
             "timestamp": 1648883951481,
             "timeZone": "+4",
             "param": {
-                "customerId": "C2102224",
+                "customerId": process.env.imile_customerid,
                 "orderCodeList": [
                     orderCodeNo
                 ],
@@ -214,13 +216,12 @@ exports.getSticker = async (req, res) => {
         })
 
         const config = {
-            method: 'GET',
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'secret': `${process.env.SAEE_KEY_P}`
+                'Content-Type': 'application/json'
             },
             url: `https://openapi.52imile.cn/client/order/batchRePrintOrder`,
-            data
+            data: data
         }
 
         const response = await axios(config)
@@ -228,7 +229,7 @@ exports.getSticker = async (req, res) => {
             return res.status(400).json({ msg: response.data })
         }
 
-        res.status(200).json({ msg: "ok", data: bill.data })
+        return res.status(200).redirect(response.data.data[0].label)
     } catch (err) {
         console.log(err)
         res.status(500).json({
