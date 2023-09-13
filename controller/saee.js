@@ -1,6 +1,5 @@
 const axios = require("axios");
 const User = require("../model/user");
-const Daftra = require("../modules/daftra");
 const Saee = require("../model/companies/saee");
 const SaeeOrder = require("../model/orders/saeeOrders");
 
@@ -19,7 +18,6 @@ exports.createUserOrder = async (req, res) => {
 
     try {
         const paytype = cod ? "cod" : "cc";
-        // const nameCode = markterCode ? `${p_name} (${markterCode})` : p_name;
         const nameCode = p_name;
 
         const data = {
@@ -61,9 +59,7 @@ exports.createUserOrder = async (req, res) => {
                 data: response.data,
                 paytype,
                 price: totalShipPrice,
-                // marktercode,
-                createdate: new Date(),
-                // inovicedaftra: invo
+                createdate: new Date()
             })
 
             res.status(200).json({ msg: "order created", data: { order } })
@@ -111,91 +107,6 @@ exports.getSticker = async (req, res) => {
             console.log(err)
         })
 }
-
-
-exports.getCities = (req, res) => {
-    axios({
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'secret': `${process.env.SAEE_KEY_P}`
-        },
-        url: `https://corporate.k-w-h.com/deliveryrequest/getallcities`
-    })
-        .then(response => {
-            res.status(200).json({
-                data: response.data
-            })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                error: err
-            })
-        })
-}
-exports.getUserOrders = async (req, res) => {
-    const userId = req.body.userId;
-    SaeeOrder.find({ user: userId })
-        .then(o => {
-            res.status(200).json({
-                data: o
-            })
-        })
-        .catch(err => {
-            console.log(err.request)
-        })
-}
-exports.edit = (req, res) => {
-    const { status, userprice, userCodPrice, marketerprice, mincodmarkteer, maxcodmarkteer, kgprice } = req.body;
-
-    Saee.findOne()
-        .then(s => {
-            s.status = status;
-            s.userprice = userprice;
-            s.marketerprice = marketerprice;
-            s.kgprice = kgprice;
-            s.maxcodmarkteer = maxcodmarkteer;
-            s.maxcodmarkteer = mincodmarkteer;
-            s.codprice = userCodPrice
-            return s.save()
-        })
-        .then(s => {
-            res.status(200).json({
-                msg: "ok"
-            })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                msg: err.message
-            })
-        })
-}
-exports.trackingOrderByNum = async (req, res) => {
-    const { orderId, userId } = req.body;
-    const order = await SaeeOrder.findById(orderId);
-    // const ordernumber = order.ordernumber.split('/')[1].split('gotex')[0]
-
-    console.log(order.data.waybill)
-    axios({
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'secret': `${process.env.SAEE_KEY_P}`
-        },
-        url: `https://corporate.k-w-h.com/tracking/ordernumber`,
-        ordernumber: order.data.waybill
-    })
-        .then(response => {
-            res.status(200).json({
-                data: response.data
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-}
 exports.cancelOrder = async (req, res) => {
     let { orderId, userId } = req.body;
     const order = await SaeeOrder.findById(orderId);
@@ -237,4 +148,84 @@ exports.cancelOrder = async (req, res) => {
             msg: err.message
         })
     }
+}
+
+exports.getCities = (req, res) => {
+    axios({
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'secret': `${process.env.SAEE_KEY_P}`
+        },
+        url: `https://corporate.k-w-h.com/deliveryrequest/getallcities`
+    })
+        .then(response => {
+            res.status(200).json({
+                data: response.data
+            })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                error: err
+            })
+        })
+}
+exports.getUserOrders = async (req, res) => {
+    const userId = req.body.userId;
+    SaeeOrder.find({ user: userId })
+        .then(o => {
+            res.status(200).json({
+                data: o
+            })
+        })
+        .catch(err => {
+            console.log(err.request)
+        })
+}
+
+exports.edit = async (req, res) => {
+    const { status, userprice, userCodPrice, kgprice } = req.body
+
+    try {
+        const saee = await Saee.findOne()
+
+        saee.status = status;
+        saee.userprice = userprice;
+        saee.kgprice = kgprice;
+        saee.codprice = userCodPrice
+        await saee.save()
+
+        res.status(200).json({ msg: "ok", saee })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
+    }
+}
+
+exports.trackingOrderByNum = async (req, res) => {
+    const { orderId, userId } = req.body;
+    const order = await SaeeOrder.findById(orderId);
+    // const ordernumber = order.ordernumber.split('/')[1].split('gotex')[0]
+
+    console.log(order.data.waybill)
+    axios({
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'secret': `${process.env.SAEE_KEY_P}`
+        },
+        url: `https://corporate.k-w-h.com/tracking/ordernumber`,
+        ordernumber: order.data.waybill
+    })
+        .then(response => {
+            res.status(200).json({
+                data: response.data
+            })
+        })
+        .catch(err => {
+            console.log(err)
+        })
 }
