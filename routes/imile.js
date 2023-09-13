@@ -11,6 +11,6 @@ routes.post("/get-sticker/:orderId", isValid, getSticker);
 routes.post("/get-all-clients", isValid, getAllClients);
 routes.post("/get-all-orders", isValid, getUserOrders);
 
-routes.post("/edit", isAdminAuth, edit);
+routes.get("/edit", isAdminAuth, edit);
 
 module.exports = routes;

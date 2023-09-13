@@ -4,7 +4,6 @@ const User = require("../model/user");
 const Imile = require("../model/companies/imile");
 const ImileOrders = require("../model/orders/imileOrders");
 const ImileClients = require("../model/clients/imileClients");
-const Daftra = require("../modules/daftra");
 
 exports.createOrder = async (req, res) => {
     const { p_company,
@@ -265,37 +264,25 @@ exports.getUserOrders = (req, res) => {
         })
 }
 
-exports.edit = (req, res) => {
-    const status = req.body.status;
-    const userprice = req.body.userprice;
-    const userCodPrice = req.body.userCodPrice;
-    const marketerprice = req.body.marketerprice;
-    const mincodmarkteer = req.body.mincodmarkteer;
-    const maxcodmarkteer = req.body.maxcodmarkteer;
-    const kgprice = req.body.kgprice;
-    Imile.findOne()
-        .then(a => {
-            console.log(a)
-            a.status = status;
-            a.userprice = userprice;
-            a.marketerprice = marketerprice;
-            a.kgprice = kgprice;
-            a.maxcodmarkteer = maxcodmarkteer;
-            a.mincodmarkteer = mincodmarkteer;
-            a.codprice = userCodPrice
-            return a.save()
+exports.edit = async (req, res) => {
+    const { status, userprice, userCodPrice, kgprice } = req.body
+
+    try {
+        const imile = await Imile.findOne()
+
+        imile.status = status;
+        imile.userprice = userprice;
+        imile.kgprice = kgprice;
+        imile.codprice = userCodPrice
+        await imile.save()
+
+        res.status(200).json({ msg: "ok" })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
         })
-        .then(a => {
-            res.status(200).json({
-                msg: "ok"
-            })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                msg: err.message
-            })
-        })
+    }
 }
 /**************************************  */
 cron.schedule('0 */2 * * *', async () => {
