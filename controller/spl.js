@@ -105,8 +105,8 @@ exports.createNewOrder = async (req, res) => {
                 paytype: paytype,
                 price: totalShipPrice,
                 marktercode: markterCode,
-                createdate: new Date(),
-                inovicedaftra: invo
+                createdate: new Date()
+                // inovicedaftra: invo
             })
 
             res.status(200).json({
