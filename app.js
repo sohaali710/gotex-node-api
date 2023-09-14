@@ -15,7 +15,7 @@ const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')
 const saeeRoute = require('./routes/saee')
 const imileRoute = require('./routes/imile')
-
+const splRoutes = require('./routes/spl')
 const PORT = process.env.PORT
 
 // Middlewares
@@ -39,7 +39,7 @@ app.use('/admin', adminRoute);
 app.use('/user', userRoute);
 app.use("/saee", saeeRoute);
 app.use("/imile", imileRoute);
-
+app.use("/spl", splRoutes);
 app.all("*", (req, res, next) => {
     res.status(400).json({ msg: `Can't ${req.method} with this route: ${req.originalUrl}` })
 })

@@ -1,25 +1,24 @@
 const axios = require("axios");
 const qs = require("qs");
-const CronJob = require('cron').CronJob;
+const cron = require('node-cron');
 const User = require("../model/user");
-const Spl = require("../model/spl");
+const Spl = require("../model/companies/spl");
 const SplOrders = require("../model/orders/splOrders");
-const Daftra = require("../modules/daftra");
-
+// const Daftra = require("../modules/daftra");
 //********************************************* */
 exports.createNewOrder = async (req, res) => {
     const { receiverName, receiverMobile, SenderName, markterCode, SenderMobileNumber,
         ContentPrice, ContentDescription, Weight, pickUpDistrictID, pickUpAddress1,
         pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2, Pieces,
-        clintid, cod, daftraid } = req.body;
+        userId, cod } = req.body;
 
-    const user = await User.findById(req.user.user.id);
+    const user = await User.findById(userId);
     const spl = await Spl.findOne();
     let ordersNum = await SplOrders.count();
     const totalShipPrice = res.locals.totalShipPrice;
 
     try {
-        let nameCode = markterCode ? `${SenderName} (${markterCode})` : nameCode = SenderName;
+        // let nameCode = markterCode ? `${SenderName} (${markterCode})` : nameCode = SenderName;
 
         if (cod) {
             var PaymentType = 2;
@@ -38,7 +37,7 @@ exports.createNewOrder = async (req, res) => {
             "RequestTypeId": 1,
             "CustomerName": receiverName,
             "CustomerMobileNumber": receiverMobile,
-            "SenderName": nameCode,
+            "SenderName": SenderName,
             "SenderMobileNumber": SenderMobileNumber,
             "Items": [
                 {
@@ -83,7 +82,7 @@ exports.createNewOrder = async (req, res) => {
         if (response.data.Status != 1) {
             return res.status(400).json({ data: response.data })
         } else {
-            const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, BookingMode, totalShipPrice);
+            // const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, BookingMode, totalShipPrice);
             const order = await SplOrders.create({
                 user: user._id,
                 company: "Spl",
@@ -106,8 +105,8 @@ exports.createNewOrder = async (req, res) => {
                 paytype: paytype,
                 price: totalShipPrice,
                 marktercode: markterCode,
-                createdate: new Date(),
-                inovicedaftra: invo
+                createdate: new Date()
+                // inovicedaftra: invo
             })
 
             res.status(200).json({
@@ -136,7 +135,6 @@ exports.createNewOrder = async (req, res) => {
     }
 }
 exports.getToken = (req, res) => {
-    const grant_type = "password";
     const UserName = "extrAccount";
     const Password = process.env.spl_password;
     var data = qs.stringify({
@@ -204,7 +202,7 @@ exports.edit = (req, res) => {
         })
 }
 exports.getUserOrders = async (req, res) => {
-    const userId = req.user.user.id;
+    const userId = req.body.userId;
     SplOrders.find({ user: userId })
         .then(o => {
             res.status(200).json({
@@ -288,41 +286,72 @@ exports.getDistrict = async (req, res) => {
         })
 }
 /********************************** */
-
-var job = new CronJob('00 00 00 * * *', async () => {
-    /*
-     * Runs every day
-     * at 00:00:00 AM. 
-     */
+cron.schedule('0 0 * * *', async () => {
     const spl = await Spl.findOne();
-    const grant_type = "password";
     const UserName = "extrAccount";
     const Password = process.env.spl_password;
-    var data = qs.stringify({
-        'grant_type': 'password',
-        'UserName': UserName,
-        'Password': Password
-    });
-    var config = {
-        method: 'post',
-        url: 'https://gateway-minasapre.sp.com.sa/token',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: data
-    };
+    try {
+        var data = qs.stringify({
+            'grant_type': 'password',
+            'UserName': UserName,
+            'Password': Password
+        });
+        var config = {
+            method: 'post',
+            url: 'https://gateway-minasapre.sp.com.sa/token',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data
+        };
 
-    axios(config)
-        .then(response => {
-            // console.log(response.data.access_token);
-            spl.token = response.data.access_token;
-            return spl.save()
-        })
-        .catch(err => {
-            console.log(err)
-        })
-}, function () {
-    console.log("spl token updated")
-},
-    true /* Start the job right now */
-);
+        axios(config)
+            .then(response => {
+                // console.log(response.data.access_token);
+                spl.token = response.data.access_token;
+                return spl.save()
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    } catch (err) {
+        console.log(err)
+    }
+})
+// var job = new CronJob('00 00 00 * * *', async () => {
+//     /*
+//      * Runs every day
+//      * at 00:00:00 AM. 
+//      */
+//     const spl = await Spl.findOne();
+//     const UserName = "extrAccount";
+//     const Password = process.env.spl_password;
+//     var data = qs.stringify({
+//         'grant_type': 'password',
+//         'UserName': UserName,
+//         'Password': Password
+//     });
+//     var config = {
+//         method: 'post',
+//         url: 'https://gateway-minasapre.sp.com.sa/token',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         data: data
+//     };
+
+//     axios(config)
+//         .then(response => {
+//             // console.log(response.data.access_token);
+//             spl.token = response.data.access_token;
+//             return spl.save()
+//         })
+//         .catch(err => {
+//             console.log(err)
+//         })
+// }, function () {
+//     console.log("spl token updated")
+// },
+//     true /* Start the job right now */
+// );
+// job();
