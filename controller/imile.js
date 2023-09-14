@@ -185,7 +185,7 @@ exports.addClient = async (req, res) => {
     }
 }
 exports.getSticker = async (req, res) => {
-    const orderId = req.params.orderId;
+    const orderId = req.params.id;
 
     try {
         const imile = await Imile.findOne();
