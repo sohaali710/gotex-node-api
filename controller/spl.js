@@ -11,9 +11,9 @@ exports.createNewOrder = async (req, res) => {
     const { receiverName, receiverMobile, SenderName, markterCode, SenderMobileNumber,
         ContentPrice, ContentDescription, Weight, pickUpDistrictID, pickUpAddress1,
         pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2, Pieces,
-        clintid, cod, daftraid } = req.body;
+        userId, cod } = req.body;
 
-    const user = await User.findById(req.user.user.id);
+    const user = await User.findById(userId);
     const spl = await Spl.findOne();
     let ordersNum = await SplOrders.count();
     const totalShipPrice = res.locals.totalShipPrice;
@@ -83,7 +83,7 @@ exports.createNewOrder = async (req, res) => {
         if (response.data.Status != 1) {
             return res.status(400).json({ data: response.data })
         } else {
-            const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, BookingMode, totalShipPrice);
+            // const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, BookingMode, totalShipPrice);
             const order = await SplOrders.create({
                 user: user._id,
                 company: "Spl",
@@ -136,7 +136,6 @@ exports.createNewOrder = async (req, res) => {
     }
 }
 exports.getToken = (req, res) => {
-    const grant_type = "password";
     const UserName = "extrAccount";
     const Password = process.env.spl_password;
     var data = qs.stringify({
@@ -295,7 +294,6 @@ var job = new CronJob('00 00 00 * * *', async () => {
      * at 00:00:00 AM. 
      */
     const spl = await Spl.findOne();
-    const grant_type = "password";
     const UserName = "extrAccount";
     const Password = process.env.spl_password;
     var data = qs.stringify({
@@ -326,3 +324,4 @@ var job = new CronJob('00 00 00 * * *', async () => {
 },
     true /* Start the job right now */
 );
+job();

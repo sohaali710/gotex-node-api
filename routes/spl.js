@@ -1,11 +1,12 @@
 const express = require("express");
 const routes = express.Router();
 const { isAuth } = require('../middleware/user');
+const { isValid } = require("../middleware/api-test");
 const { isAdminAuth } = require("../middleware/admin");
 const { splCheck } = require("../middleware/company");
 const { createNewOrder, getCities, getToken, getUserOrders, getCountries, getDistrict, edit } = require("../controller/spl");
 
-routes.post("/crete-new-order", isAuth, splCheck, createNewOrder);
+routes.post("/crete-new-order", isValid, splCheck, createNewOrder);
 routes.get("/get-cities", getCities);
 routes.get("/token", getToken);
 routes.get("/get-all-orders", isAuth, getUserOrders); // not added to doc
