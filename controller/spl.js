@@ -202,7 +202,7 @@ exports.edit = (req, res) => {
         })
 }
 exports.getUserOrders = async (req, res) => {
-    const userId = req.user.user.id;
+    const userId = req.body.userId;
     SplOrders.find({ user: userId })
         .then(o => {
             res.status(200).json({
