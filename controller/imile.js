@@ -276,7 +276,7 @@ exports.edit = async (req, res) => {
         imile.codprice = userCodPrice
         await imile.save()
 
-        res.status(200).json({ msg: "ok", imile })
+        res.status(200).json({ msg: "ok" })
     } catch (err) {
         console.log(err)
         res.status(500).json({
