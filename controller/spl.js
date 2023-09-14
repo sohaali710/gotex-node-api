@@ -18,7 +18,7 @@ exports.createNewOrder = async (req, res) => {
     const totalShipPrice = res.locals.totalShipPrice;
 
     try {
-        let nameCode = markterCode ? `${SenderName} (${markterCode})` : nameCode = SenderName;
+        // let nameCode = markterCode ? `${SenderName} (${markterCode})` : nameCode = SenderName;
 
         if (cod) {
             var PaymentType = 2;
@@ -37,7 +37,7 @@ exports.createNewOrder = async (req, res) => {
             "RequestTypeId": 1,
             "CustomerName": receiverName,
             "CustomerMobileNumber": receiverMobile,
-            "SenderName": nameCode,
+            "SenderName": SenderName,
             "SenderMobileNumber": SenderMobileNumber,
             "Items": [
                 {
