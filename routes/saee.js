@@ -13,6 +13,6 @@ routes.post("/get-user-orders", isValid, getUserOrders);
 routes.post("/cancel-order", isValid, cancelOrder);
 routes.post("/track-order-by-number", isValid, trackingOrderByNum);
 
-routes.get("/edit", isAdminAuth, edit);
+routes.post("/edit", isAdminAuth, edit);
 
 module.exports = routes;
