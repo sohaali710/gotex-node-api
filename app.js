@@ -15,7 +15,7 @@ const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')
 const saeeRoute = require('./routes/saee')
 const imileRoute = require('./routes/imile')
-
+const splRoutes = require('./routes/spl')
 const PORT = process.env.PORT
 
 // Middlewares
