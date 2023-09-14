@@ -62,7 +62,7 @@ exports.createUserOrder = async (req, res) => {
                 createdate: new Date()
             })
 
-            res.status(200).json({ msg: "order created", data: { order } })
+            res.status(200).json({ msg: "order created", data: order })
         }
     } catch (err) {
         console.log(err)
