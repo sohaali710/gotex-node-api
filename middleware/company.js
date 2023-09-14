@@ -422,7 +422,7 @@ exports.anwanCheck = async (req, res, next) => {
 exports.splCheck = async (req, res, next) => {
     try {
         const cod = req.body.cod; // change to number
-        const userRoll = req.user.user.roll;
+        const userRoll = "user";
         const weight = req.body.Weight;
         const userId = req.body.userId;
         var shipmentValue = req.body.shipmentValue; // new number must
