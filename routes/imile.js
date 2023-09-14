@@ -7,8 +7,9 @@ const { createOrder, addClient, getSticker, getAllClients, getUserOrders, edit }
 
 routes.post("/create-user-order", isValid, imileCheck, createOrder);
 routes.post("/add-client", isValid, addClient);
-routes.post("/print-sticker/:id", isValid, getSticker);
 routes.post("/get-all-clients", isValid, getAllClients);
+routes.post("/print-sticker/:id", isValid, getSticker);
+
 routes.post("/get-user-orders", isValid, getUserOrders);
 
 routes.post("/edit", isAdminAuth, edit);
