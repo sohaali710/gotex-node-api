@@ -39,7 +39,7 @@ app.use('/admin', adminRoute);
 app.use('/user', userRoute);
 app.use("/saee", saeeRoute);
 app.use("/imile", imileRoute);
-
+app.use("/spl", splRoutes);
 app.all("*", (req, res, next) => {
     res.status(400).json({ msg: `Can't ${req.method} with this route: ${req.originalUrl}` })
 })
