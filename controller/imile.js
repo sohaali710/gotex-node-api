@@ -277,7 +277,7 @@ exports.cancelOrder = async (req, res) => {
             return res.status(400).json({ msg: response.data })
         }
 
-        return res.status(200).json({ msg: 'ok' })
+        return res.status(200).json({ data: response.data })
     } catch (err) {
         console.log(err)
         res.status(500).json({
