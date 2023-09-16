@@ -132,12 +132,11 @@ exports.imileCheck = async (req, res, next) => {
     }
 }
 exports.gltCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        var shipmentValue = req.body.shipmentValue; // new number must
+        const roll = 'user';
         /*********************************************** */
         const glt = await Glt.findOne();
         const user = await User.findById(userId);
@@ -152,7 +151,7 @@ exports.gltCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[1].cod;
                     var shipPrice = codPrice;
@@ -177,7 +176,7 @@ exports.gltCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[1].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -204,12 +203,11 @@ exports.gltCheck = async (req, res, next) => {
     }
 }
 exports.aramexCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        var shipmentValue = req.body.shipmentValue; // new number must
+        const roll = 'user';
         /*********************************************** */
         const aramex = await Aramex.findOne();
         const user = await User.findById(userId);
@@ -224,7 +222,7 @@ exports.aramexCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[3].cod;
                     var shipPrice = codPrice;
@@ -249,7 +247,7 @@ exports.aramexCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[3].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -276,12 +274,11 @@ exports.aramexCheck = async (req, res, next) => {
     }
 }
 exports.smsaCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        var shipmentValue = req.body.shipmentValue; // new number must
+        const roll = 'user';
         /*********************************************** */
         const smsa = await Smsa.findOne();
         const user = await User.findById(userId);
@@ -296,7 +293,7 @@ exports.smsaCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[2].cod;
                     var shipPrice = codPrice;
@@ -321,7 +318,7 @@ exports.smsaCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[2].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -348,12 +345,11 @@ exports.smsaCheck = async (req, res, next) => {
     }
 }
 exports.anwanCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        var shipmentValue = req.body.shipmentValue; // new number must
+        const roll = 'user';
         /*********************************************** */
         const anwan = await Anwan.findOne();
         const user = await User.findById(userId).populate("inv");
@@ -368,7 +364,7 @@ exports.anwanCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[4].cod;
                     var shipPrice = codPrice;
@@ -393,7 +389,7 @@ exports.anwanCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[4].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -420,12 +416,11 @@ exports.anwanCheck = async (req, res, next) => {
     }
 }
 exports.splCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userRoll = "user";
-        const weight = req.body.Weight;
-        const userId = req.body.userId;
-        var shipmentValue = req.body.shipmentValue; // new number must
+        const roll = "user";
         /*********************************************** */
         const spl = await Spl.findOne();
         const user = await User.findById(userId);
@@ -440,7 +435,7 @@ exports.splCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[0].cod;
                     var shipPrice = codPrice;
@@ -468,7 +463,7 @@ exports.splCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[0].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -495,12 +490,11 @@ exports.splCheck = async (req, res, next) => {
     }
 }
 exports.jtCheck = async (req, res, next) => {
+    const { cod, userId, weight } = req.body
+    var shipmentValue = req.body.shipmentValue; // new number must
+
     try {
-        const cod = req.body.cod; // change to number
-        const userId = req.user.user.id;
-        const userRoll = req.user.user.roll;
-        const weight = req.body.weight;
-        var shipmentValue = req.body.goodsValue; // new number must
+        const roll = 'user';
         /*********************************************** */
         const jt = await Jt.findOne();
         const user = await User.findById(userId);
@@ -515,7 +509,7 @@ exports.jtCheck = async (req, res, next) => {
             if (!shipmentValue) {
                 shipmentValue = 0
             }
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var codPrice = user.inv.companies[3].cod;
                     var shipPrice = codPrice;
@@ -540,7 +534,7 @@ exports.jtCheck = async (req, res, next) => {
             res.locals.totalShipPrice = shipPrice + weightPrice;
             next()
         } else {
-            if (userRoll == "user") {
+            if (roll == "user") {
                 if (user.inv) {
                     var onlinePrice = user.inv.companies[3].onlinePayment;
                     var shipPrice = onlinePrice;
@@ -568,7 +562,7 @@ exports.jtCheck = async (req, res, next) => {
 }
 /**************************************************** */
 exports.isCrProofed = (req, res, next) => {
-    const userId = req.user.user.id;
+    const userId = req.body.userId
 
     User.findById(userId)
         .then(u => {
