@@ -236,6 +236,55 @@ exports.getSticker = async (req, res) => {
         })
     }
 }
+exports.cancelOrder = async (req, res) => {
+    let { orderId, userId } = req.body;
+    const imile = await Imile.findOne();
+    const order = await ImileOrders.findById(orderId);
+
+    try {
+        if (!order || order.user != userId) {
+            return res.status(400).json({
+                err: "order not found"
+            })
+        }
+        const waybillNo = order.data.data.expressNo
+
+        const data = JSON.stringify({
+            "customerId": process.env.imile_customerid,
+            "sign": process.env.imile_sign,
+            "accessToken": imile.token,
+            "signMethod": "SimpleKey",
+            "format": "json",
+            "version": "1.0.0",
+            "timestamp": 1648883951481,
+            "timeZone": "+4",
+            "param": {
+                "waybillNo": waybillNo
+            }
+        })
+
+        const config = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: `https://openapi.52imile.cn/client/order/deleteOrder`,
+            data: data
+        }
+
+        const response = await axios(config)
+        if (response.data.message !== 'success') {
+            return res.status(400).json({ msg: response.data })
+        }
+
+        return res.status(200).json({ msg: 'ok' })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
+    }
+}
 
 exports.getAllClients = (req, res) => {
     ImileClients.find()
