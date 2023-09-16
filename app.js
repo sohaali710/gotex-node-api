@@ -10,13 +10,17 @@ app.use(morgan('combined'))
 
 const { dbConnection } = require('./db/mongoose');
 const { upload, uploadClintReceipts } = require('./middleware/fileUpload')
+const PORT = process.env.PORT
 
 const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')
 const saeeRoute = require('./routes/saee')
 const imileRoute = require('./routes/imile')
 const splRoutes = require('./routes/spl')
-const PORT = process.env.PORT
+// const anwanRoutes = require('./routes/anwan')
+// const aramexRoutes = require('./routes/aramex')
+// const gltRoutes = require('./routes/glt')
+
 
 // Middlewares
 app.use(express.static('public'))
@@ -40,6 +44,10 @@ app.use('/user', userRoute);
 app.use("/saee", saeeRoute);
 app.use("/imile", imileRoute);
 app.use("/spl", splRoutes);
+// app.use("/anwan", anwanRoutes);
+// app.use("/aramex", aramexRoutes);
+// app.use("/glt", gltRoutes);
+
 app.all("*", (req, res, next) => {
     res.status(400).json({ msg: `Can't ${req.method} with this route: ${req.originalUrl}` })
 })
