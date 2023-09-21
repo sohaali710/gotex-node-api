@@ -133,9 +133,10 @@ exports.cancelOrder = async (req, res) => {
 
         const saeeRes = await axios.request(config);
         if (saeeRes.data.success == true) {
-            return res.status(200).json({
-                data: saeeRes.data
-            })
+            order.status = 'canceled'
+            await order.save()
+
+            return res.status(200).json({ data: saeeRes.data })
         } else {
             return res.status(400).json({
                 data: saeeRes.data

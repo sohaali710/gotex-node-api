@@ -9,7 +9,12 @@ const imileOrderSchema = mongoose.Schema({
     price: Number,
     marktercode: String,
     createdate: String,
-    inovicedaftra: Object
+    inovicedaftra: Object,
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'canceled'],
+        default: 'pending'
+    }
 })
 
 module.exports = mongoose.model("ImileOrder", imileOrderSchema);

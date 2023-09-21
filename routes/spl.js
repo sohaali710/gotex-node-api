@@ -1,6 +1,5 @@
 const express = require("express");
 const routes = express.Router();
-const { isAuth } = require('../middleware/user');
 const { isValid } = require("../middleware/api-test");
 const { isAdminAuth } = require("../middleware/admin");
 const { splCheck } = require("../middleware/company");

@@ -142,6 +142,7 @@ exports.getToken = (req, res) => {
         "UserName": UserName,
         "Password": Password
     });
+    console.log('**before')
     var config = {
         method: 'post',
         url: 'https://gateway-minasapre.sp.com.sa/token',
@@ -153,6 +154,7 @@ exports.getToken = (req, res) => {
 
     axios(config)
         .then(response => {
+            console.log('**after')
             console.log(response);
             Spl.findOne()
                 .then(s => {
@@ -321,7 +323,7 @@ cron.schedule('0 0 * * *', async () => {
 // var job = new CronJob('00 00 00 * * *', async () => {
 //     /*
 //      * Runs every day
-//      * at 00:00:00 AM. 
+//      * at 00:00:00 AM.
 //      */
 //     const spl = await Spl.findOne();
 //     const UserName = "extrAccount";

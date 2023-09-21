@@ -277,6 +277,8 @@ exports.cancelOrder = async (req, res) => {
             return res.status(400).json({ msg: response.data })
         }
 
+        order.status = 'canceled'
+        await order.save()
         return res.status(200).json({ data: response.data })
     } catch (err) {
         console.log(err)

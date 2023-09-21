@@ -10,6 +10,11 @@ const splOrderSchema = mongoose.Schema({
     marktercode: String,
     createdate: String,
     inovicedaftra: Object,
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'canceled'],
+        default: 'pending'
+    },
 
     sender: Object,
     receiver: Object
