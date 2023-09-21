@@ -18,6 +18,7 @@ const saeeRoute = require('./routes/saee')
 const imileRoute = require('./routes/imile')
 const splRoutes = require('./routes/spl')
 const jtRoutes = require('./routes/jt')
+const smsaRoutes = require('./routes/smsa')
 // const anwanRoutes = require('./routes/anwan')
 // const aramexRoutes = require('./routes/aramex')
 // const gltRoutes = require('./routes/glt')
@@ -46,6 +47,7 @@ app.use("/saee", saeeRoute);
 app.use("/imile", imileRoute);
 app.use("/spl", splRoutes);
 app.use("/jt", jtRoutes);
+app.use("/smsa", smsaRoutes);
 // app.use("/anwan", anwanRoutes);
 // app.use("/aramex", aramexRoutes);
 // app.use("/glt", gltRoutes);
