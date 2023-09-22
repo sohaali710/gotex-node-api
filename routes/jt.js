@@ -3,12 +3,12 @@ const routes = express.Router();
 const { isValid } = require("../middleware/api-test");
 const { isAdminAuth } = require("../middleware/admin");
 const { jtCheck } = require("../middleware/company");
-const { createUserOrder, getSticker, edit } = require("../controller/jt");
+const { createUserOrder, getSticker, getUserOrders, edit } = require("../controller/jt");
 
 routes.post("/create-user-order", isValid, jtCheck, createUserOrder);
 routes.post("/print-sticker/:id", isValid, getSticker);
+routes.post("/get-user-orders", isValid, getUserOrders);
 // routes.get("/get-all-cities", getAllCities);
-// routes.get("/get-user-orders", isValid, getUserOrders);
 // routes.post("/track-order-by-number", isValid, trackingOrderByNum);
 routes.post("/edit", isAdminAuth, edit);
 

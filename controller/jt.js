@@ -157,6 +157,19 @@ exports.getSticker = async (req, res) => {
     }
 }
 
+exports.getUserOrders = (req, res) => {
+    const userId = req.body.userId;
+
+    JtOrders.find({ user: userId })
+        .then(order => {
+            res.status(200).json({
+                data: order
+            })
+        })
+        .catch(err => {
+            console.log(err.request)
+        })
+}
 
 exports.edit = (req, res) => {
     const { status, userprice, userCodPrice, kgprice } = req.body;
