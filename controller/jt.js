@@ -156,6 +156,59 @@ exports.getSticker = async (req, res) => {
         })
     }
 }
+exports.cancelOrder = async (req, res) => {
+    let { orderId, userId } = req.body;
+    const order = await JtOrders.findById(orderId)
+    try {
+        if (!order || order.user != userId) {
+            return res.status(400).json({
+                err: "order not found"
+            })
+        }
+        const txlogisticId = order.data.data.txlogisticId
+        const billCode = order.data.data.billCode
+
+        const bizContent = `{
+            "customerCode":"J0086024173",
+            "digest":"VdlpKaoq64AZ0yEsBkvt1A==",
+            "orderType":"2",
+            "txlogisticId":"${txlogisticId}",
+            "reason":"We no longer needs this order.",
+            "billCode":"${billCode}"
+         }`;
+
+        let data = qs.stringify({ bizContent });
+        let myText = bizContent + "a0a1047cce70493c9d5d29704f05d0d9";
+        var md5Hash = crypto.createHash('md5').update(myText).digest('base64');
+
+        let config = {
+            method: 'post',
+            url: 'https://demoopenapi.jtjms-sa.com/webopenplatformapi/api/order/cancelOrder?uuid=7a73e66f9b9c42b18d986f581e6f931e',
+            headers: {
+                'apiAccount': '292508153084379141',
+                'digest': md5Hash,
+                'timestamp': '1638428570653',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data
+        };
+
+        const response = await axios(config);
+        if (response.data.code != 1) {
+            return res.status(400).json({ data: response.data })
+        }
+
+        order.status = 'canceled'
+        await order.save()
+
+        return res.status(200).json({ data: response.data })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
+    }
+}
 
 exports.getUserOrders = (req, res) => {
     const userId = req.body.userId;
