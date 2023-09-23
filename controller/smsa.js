@@ -125,6 +125,45 @@ exports.getSticker = async (req, res) => {
         })
     }
 }
+exports.cancelOrder = async (req, res) => {
+    let { orderId, userId } = req.body;
+    const order = await SmsaOrders.findById(orderId)
+    try {
+        if (!order || order.user != userId) {
+            return res.status(400).json({
+                err: "order not found"
+            })
+        }
+        const AWB = order.data.sawb
+        console.log(AWB)
+
+        const config = {
+            method: 'post',
+            url: `https://ecomapis.smsaexpress.com/api/c2b/cancel/${AWB}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': process.env.SMSA_API_KEY
+            }
+        };
+
+        const response = await axios.request(config);
+        if (response.data.success == true) {
+            order.status = 'canceled'
+            await order.save()
+
+            return res.status(200).json({ data: response.data })
+        } else {
+            return res.status(400).json({
+                data: response.data
+            })
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: err.message
+        })
+    }
+}
 
 exports.getUserOrders = (req, res) => {
     const userId = req.body.userId;
