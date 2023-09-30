@@ -76,8 +76,7 @@ exports.getSticker = async (req, res) => {
 
     SaeeOrder.findById(orderId)
         .then(o => {
-            console.log('//////////////////////')
-            console.log(o.data.waybill)
+            const data = { waybill: o.data.waybill }
             axios({
                 method: 'GET',
                 headers: {
@@ -85,7 +84,7 @@ exports.getSticker = async (req, res) => {
                     'secret': `${process.env.SAEE_KEY_P}`
                 },
                 url: `https://corporate.k-w-h.com/deliveryrequest/printsticker/WAYBILL`,
-                waybill: o.data.waybill
+                data
             })
                 /**production */
                 // axios({
