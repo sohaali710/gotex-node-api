@@ -1,12 +1,14 @@
 const User = require("../model/user");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-const ejs = require("ejs");
 const bcrypt = require('bcrypt');
 const salt = 10;
 const axios = require('axios');
 const paymentOrder = require("../model/payment/orders");
 const user = require("../model/user");
+const sendEmail = require("../modules/sendEmail");
+const genRandomString = require("../modules/genRandomString");
+const genRandomKey = require("../modules/genRandomKey");
+
 /**
  * @Desc : User Registration
  */
@@ -87,7 +89,6 @@ exports.logIn = async (req, res) => {
         })
     }
 }
-
 
 exports.activateUser = async (req, res) => {
     const { id, code } = req.params
@@ -325,62 +326,4 @@ exports.generateApiKeyForTest = async (req, res) => {
             error: err
         })
     }
-}
-/**
- * @Desc : Verify email methods
- */
-const sendEmail = async (email, text, id, temp) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            host: "smtp.hostinger.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.EMAILPASSWORD,
-            },
-        });
-
-        ejs.renderFile(__dirname + temp, { code: text, id: id }, async function (err, data) {
-            if (err) {
-                console.log(err);
-            } else {
-                transporter.sendMail({
-                    from: {
-                        name: 'Gotex',
-                        address: process.env.EMAIL
-                    },
-                    to: email,
-                    subject: "Verify your gotex account",
-                    html: data,
-                }, (error, result) => {
-                    if (error) return console.error(error);
-                    return console.log(result);
-                });
-                console.log("email sent successfully");
-            }
-        })
-    } catch (error) {
-        console.log("email not sent");
-        console.log(error);
-    }
-};
-//************************************** */
-const genRandomString = (length) => {
-    var chars = '0123456789';
-    var charLength = chars.length;
-    var result = '';
-    for (var i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * charLength));
-    }
-    return result;
-}
-const genRandomKey = (length) => {
-    var chars = '!@#$%0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
-    var charLength = chars.length;
-    var result = '';
-    for (var i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * charLength));
-    }
-    return result;
 }
