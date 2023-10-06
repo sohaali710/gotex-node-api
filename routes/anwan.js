@@ -2,7 +2,7 @@ const express = require("express");
 const routes = express.Router();
 const { isAdminAuth } = require("../middleware/admin");
 const { anwanCheck } = require("../middleware/company");
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { createUserOrder, getSticker, getCities, getUserOrders, edit } = require("../controller/anwan");
 
 routes.post("/create-user-order", isValid, anwanCheck, createUserOrder);

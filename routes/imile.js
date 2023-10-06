@@ -1,7 +1,7 @@
 const express = require("express");
 const routes = express.Router();
 const { isAdminAuth } = require("../middleware/admin");
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { imileCheck } = require("../middleware/company");
 const { createOrder, addClient, getSticker, cancelOrder, getAllClients, getUserOrders, edit } = require("../controller/imile");
 

@@ -1,7 +1,7 @@
 const express = require("express");
 const routes = express.Router();
 const { aramexCheck } = require("../middleware/company");
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { isAdminAuth } = require("../middleware/admin");
 const { createOrder, getSticker, getCities, getUserOrders, edit } = require("../controller/aramex");
 

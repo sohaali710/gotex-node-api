@@ -1,7 +1,7 @@
 const express = require("express");
 const routes = express.Router();
 const { gltCheck } = require("../middleware/company");
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { isAdminAuth } = require("../middleware/admin");
 const { createUserOrder, getSticker, getAllCities, getUserOrders, edit } = require("../controller/glt");
 

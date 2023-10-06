@@ -1,6 +1,6 @@
 const express = require("express");
 const routes = express.Router();
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { isAdminAuth } = require("../middleware/admin");
 const { jtCheck } = require("../middleware/company");
 const { createUserOrder, getSticker, getUserOrders, cancelOrder, edit } = require("../controller/jt");

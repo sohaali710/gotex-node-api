@@ -1,6 +1,6 @@
 const express = require("express");
 const routes = express.Router();
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 const { isAdminAuth } = require("../middleware/admin");
 const { splCheck } = require("../middleware/company");
 const { createNewOrder, getCities, getToken, getUserOrders, getCountries, getDistrict, edit } = require("../controller/spl");

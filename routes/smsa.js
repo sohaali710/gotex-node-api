@@ -3,7 +3,7 @@ const routes = express.Router();
 const { smsaCheck, isCrProofed } = require("../middleware/company");
 const { isAdminAuth } = require("../middleware/admin");
 const { edit, createUserOrder, getUserOrders, getSticker, cancelOrder } = require("../controller/smsa");
-const { isValid } = require("../middleware/api-test");
+const { isValid } = require("../middleware/api-production");
 
 routes.post("/create-user-order", isValid, isCrProofed, smsaCheck, createUserOrder);
 routes.post("/print-sticker/:id", isValid, getSticker);
