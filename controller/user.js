@@ -251,7 +251,7 @@ exports.addBalance = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            error: err.message
         })
     }
 }
@@ -291,7 +291,7 @@ exports.checkPaymentOrder = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            error: err.message
         })
     }
 }
@@ -305,7 +305,7 @@ exports.getAllPaymentOrders = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            error: err.message
         })
     }
 }
@@ -323,7 +323,26 @@ exports.generateApiKeyForTest = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            error: err
+            error: err.message
+        })
+    }
+}
+
+exports.generateApiKeyForProduction = async (req, res) => {
+    const uId = req.user.user.id;
+    const user = await User.findById(uId);
+    try {
+        const key = genRandomKey(150);
+        user.apikey.production = key;
+        user.apistatus.production = true;
+        await user.save();
+        res.status(200).json({
+            data: user.apikey.production
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
         })
     }
 }
