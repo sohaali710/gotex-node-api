@@ -40,7 +40,7 @@ exports.createUserOrder = async (req, res) => {
         const config = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json;charset=utf-8' },
-            url: 'https://k-w-h.com/deliveryrequest/newpickup',
+            url: 'https://corporate.saeex.com/deliveryrequest/newpickup',
             data: data
         }
 
@@ -51,7 +51,6 @@ exports.createUserOrder = async (req, res) => {
             user.wallet = cod ? user.wallet : (user.wallet - totalShipPrice);
             await user.save()
 
-            // const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, paytype, totalShipPrice);
             const order = await SaeeOrder.create({
                 user: userId,
                 company: "saee",
@@ -83,18 +82,8 @@ exports.getSticker = async (req, res) => {
                     'Content-Type': 'application/json',
                     'secret': `${process.env.SAEE_KEY_P}`
                 },
-                url: `https://corporate.k-w-h.com/deliveryrequest/printsticker/WAYBILL`,
-                data
+                url: `https://corporate.saeex.com/deliveryrequest/printsticker/${o.data.waybill}`
             })
-                /**production */
-                // axios({
-                //     method: 'GET',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         'secret': `${process.env.SAEE_KEY_P}`
-                //     },
-                //     url: `https://corporate.k-w-h.com/deliveryrequest/printsticker/WAYBILL`
-                // })
                 .then(bill => {
                     res.status(200).json({
                         msg: "ok",
@@ -122,7 +111,7 @@ exports.cancelOrder = async (req, res) => {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://corporate.k-w-h.com/deliveryrequest/cancelpickup',
+            url: 'https://corporate.saeex.com/deliveryrequest/cancelpickup',
             headers: {
                 'secret': process.env.SAEE_KEY_P,
                 'Content-Type': 'application/json',
@@ -157,7 +146,7 @@ exports.getCities = (req, res) => {
             'Content-Type': 'application/json',
             'secret': `${process.env.SAEE_KEY_P}`
         },
-        url: `https://corporate.k-w-h.com/deliveryrequest/getallcities`
+        url: `https://corporate.saeex.com/deliveryrequest/getallcities`
     })
         .then(response => {
             res.status(200).json({
@@ -208,7 +197,7 @@ exports.edit = async (req, res) => {
 exports.trackingOrderByNum = async (req, res) => {
     const { orderId, userId } = req.body;
     const order = await SaeeOrder.findById(orderId);
-    // const ordernumber = order.ordernumber.split('/')[1].split('gotex')[0]
+    const ordernumber = order.ordernumber.split('/')[1].split('gotex')[0]
 
     console.log(order.data.waybill)
     axios({
@@ -217,7 +206,7 @@ exports.trackingOrderByNum = async (req, res) => {
             'Content-Type': 'application/json',
             'secret': `${process.env.SAEE_KEY_P}`
         },
-        url: `https://corporate.k-w-h.com/tracking/ordernumber`,
+        url: `https://corporate.saeex.com/tracking/ordernumber?ordernumber=${ordernumber}`,
         ordernumber: order.data.waybill
     })
         .then(response => {
