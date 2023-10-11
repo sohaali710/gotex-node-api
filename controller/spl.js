@@ -7,9 +7,9 @@ const SplOrders = require("../model/orders/splOrders");
 // const Daftra = require("../modules/daftra");
 //********************************************* */
 exports.createNewOrder = async (req, res) => {
-    const { receiverName, receiverMobile, SenderName, markterCode, SenderMobileNumber,
-        ContentPrice, ContentDescription, Weight, pickUpDistrictID, pickUpAddress1,
-        pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2, Pieces,
+    const { receiverName, receiverMobile, senderName, markterCode, senderMobileNumber,
+        contentPrice, contentDescription, weight, pickUpDistrictID, pickUpAddress1,
+        pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2, pieces,
         userId, cod } = req.body;
 
     const user = await User.findById(userId);
@@ -18,7 +18,7 @@ exports.createNewOrder = async (req, res) => {
     const totalShipPrice = res.locals.totalShipPrice;
 
     try {
-        // let nameCode = markterCode ? `${SenderName} (${markterCode})` : nameCode = SenderName;
+        // let nameCode = markterCode ? `${senderName} (${markterCode})` : nameCode = senderName;
 
         if (cod) {
             var PaymentType = 2;
@@ -37,15 +37,15 @@ exports.createNewOrder = async (req, res) => {
             "RequestTypeId": 1,
             "CustomerName": receiverName,
             "CustomerMobileNumber": receiverMobile,
-            "SenderName": SenderName,
-            "SenderMobileNumber": SenderMobileNumber,
+            "SenderName": senderName,
+            "SenderMobileNumber": senderMobileNumber,
             "Items": [
                 {
                     "ReferenceId": `${Date.now()} + Gotex`,
                     "PaymentType": PaymentType,
-                    "ContentPrice": ContentPrice,
-                    "ContentDescription": ContentDescription,
-                    "Weight": Weight,
+                    "ContentPrice": contentPrice,
+                    "ContentDescription": contentDescription,
+                    "Weight": weight,
                     "TotalAmount": TotalAmount,
                     "SenderAddressDetail": {
                         "AddressTypeID": 6,
@@ -61,8 +61,8 @@ exports.createNewOrder = async (req, res) => {
                         "AddressLine1": deliveryAddress1,
                         "AddressLine2": deliveryAddress2
                     },
-                    "PiecesCount": Pieces.length + 1,
-                    "ItemPieces": Pieces
+                    "PiecesCount": pieces.length + 1,
+                    "ItemPieces": pieces
                 }
             ]
         })
@@ -96,8 +96,8 @@ exports.createNewOrder = async (req, res) => {
                     AddressLine2: pickUpAddress2
                 },
                 sender: {
-                    name: SenderName,
-                    mobile: SenderMobileNumber,
+                    name: senderName,
+                    mobile: senderMobileNumber,
                     city: deliveryDistrictID,
                     AddressLine1: deliveryAddress1,
                     AddressLine2: deliveryAddress2
@@ -118,8 +118,8 @@ exports.createNewOrder = async (req, res) => {
                     AddressLine2: pickUpAddress2
                 },
                 sender: {
-                    name: SenderName,
-                    mobile: SenderMobileNumber,
+                    name: senderName,
+                    mobile: senderMobileNumber,
                     city: deliveryDistrictID,
                     AddressLine1: deliveryAddress1,
                     AddressLine2: deliveryAddress2
