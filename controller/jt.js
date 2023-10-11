@@ -89,13 +89,9 @@ exports.createUserOrder = async (req, res) => {
             },
             data: data
         };
-
         const response = await axios(config);
-        if (response.data.code != 1) {
-            return res.status(400).json({ msg: response.data })
-        }
 
-        const newOrder = await JtOrders.create({
+        const order = await JtOrders.create({
             user: userId,
             company: "jt",
             ordernumber: ordersNum + 2,
@@ -105,11 +101,18 @@ exports.createUserOrder = async (req, res) => {
             createdate: new Date()
         })
 
+        if (response.data.code != 1) {
+            order.status = 'failed'
+            await order.save()
+            return res.status(400).json({ msg: response.data })
+        }
+
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
             await user.save()
         }
-        return res.status(200).json({ data: newOrder })
+
+        return res.status(200).json({ data: order })
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -213,7 +216,7 @@ exports.cancelOrder = async (req, res) => {
 exports.getUserOrders = (req, res) => {
     const userId = req.body.userId;
 
-    JtOrders.find({ user: userId })
+    JtOrders.find({ user: userId, status: { $ne: "failed" } })
         .then(order => {
             res.status(200).json({
                 data: order

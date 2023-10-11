@@ -7,8 +7,8 @@ const SaeeOrder = require("../model/orders/saeeOrders");
 exports.createUserOrder = async (req, res) => {
     const {
         p_name, p_city, p_mobile, p_streetaddress,
-        c_name, c_city, c_mobile, c_streetaddress, weight, quantity,
-        cod, description, userId } = req.body
+        c_name, c_city, c_mobile, c_streetaddress,
+        weight, quantity, cod, description, userId } = req.body
 
     const totalShipPrice = res.locals.totalShipPrice;
     const cashondelivery = res.locals.codAmount;
@@ -43,27 +43,30 @@ exports.createUserOrder = async (req, res) => {
             url: 'https://k-w-h.com/deliveryrequest/newpickup',
             data: data
         }
-
         const response = await axios(config)
+
+        const order = await SaeeOrder.create({
+            user: userId,
+            company: "saee",
+            ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
+            data: response.data,
+            paytype,
+            price: totalShipPrice,
+            createdate: new Date()
+        })
+
         if (!response.data.success) {
+            order.status = 'failed'
+            await order.save()
             return res.status(400).json({ msg: response.data })
-        } else {
-            user.wallet = cod ? user.wallet : (user.wallet - totalShipPrice);
-            await user.save()
-
-            // const invo = await Daftra.CreateInvo(daftraid, req.user.user.daftraid, description, paytype, totalShipPrice);
-            const order = await SaeeOrder.create({
-                user: userId,
-                company: "saee",
-                ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
-                data: response.data,
-                paytype,
-                price: totalShipPrice,
-                createdate: new Date()
-            })
-
-            res.status(200).json({ msg: "order created", data: order })
         }
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice
+            await user.save()
+        }
+
+        res.status(200).json({ msg: "order created", data: order })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -173,7 +176,7 @@ exports.getCities = (req, res) => {
 }
 exports.getUserOrders = async (req, res) => {
     const userId = req.body.userId;
-    SaeeOrder.find({ user: userId })
+    SaeeOrder.find({ user: userId, status: { $ne: "failed" } })
         .then(o => {
             res.status(200).json({
                 data: o

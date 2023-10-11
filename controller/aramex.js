@@ -225,13 +225,9 @@ exports.createOrder = async (req, res) => {
             },
             data: data
         };
-
         const response = await axios(config)
-        if (response.data.HasErrors) {
-            return res.status(400).json({ msg: response.data })
-        }
 
-        const newOrder = await AramexOrders.create({
+        const order = await AramexOrders.create({
             user: userId,
             company: "aramex",
             ordernumber: ordersNum + 2,
@@ -241,11 +237,17 @@ exports.createOrder = async (req, res) => {
             createdate: new Date()
         })
 
+        if (response.data.HasErrors) {
+            order.status = 'failed'
+            await order.save()
+            return res.status(400).json({ msg: response.data })
+        }
+
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
             await user.save()
         }
-        res.status(200).json({ msg: "order created successfully", data: newOrder })
+        res.status(200).json({ msg: "order created successfully", data: order })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -322,7 +324,7 @@ exports.getCities = async (req, res) => {
 exports.getUserOrders = async (req, res) => {
     const userId = req.body.userId;
     try {
-        const orders = await AramexOrders.find({ user: userId })
+        const orders = await AramexOrders.find({ user: userId, status: { $ne: "failed" } })
         res.status(200).json({ data: orders })
     } catch (err) {
         console.log(err)

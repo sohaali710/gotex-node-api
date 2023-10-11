@@ -22,10 +22,12 @@ exports.createOrder = async (req, res) => {
             var codAmount = res.locals.codAmount;
             var PaymentType = "p";
             var paymentMethod = 100;
+            var paytype = "cod"
         } else {
             var codAmount = 0;
             var PaymentType = "P";
             var paymentMethod = 200;
+            var paytype = "cc"
         }
 
         let data = JSON.stringify({
@@ -88,30 +90,30 @@ exports.createOrder = async (req, res) => {
             },
             data: data
         };
-
         const response = await axios(config)
-        console.log(response.data)
+
+        const order = await ImileOrders.create({
+            user: userId,
+            company: "imile",
+            ordernumber: ordersNum + 2,
+            data: response.data,
+            paytype,
+            price: totalShipPrice,
+            createdate: new Date()
+        })
+
         if (response.data.code != '200') {
-            res.status(400).json({
-                msg: response.data
-            })
-        } else {
-            const paytype = cod ? "cod" : "cc";
-            user.wallet = cod ? user.wallet : user.wallet - totalShipPrice;
-            await user.save()
-
-            const order = await ImileOrders.create({
-                user: userId,
-                company: "imile",
-                ordernumber: ordersNum + 2,
-                data: response.data,
-                paytype,
-                price: totalShipPrice,
-                createdate: new Date()
-            })
-
-            res.status(200).json({ data: order })
+            order.status = 'failed'
+            await order.save()
+            return res.status(400).json({ msg: response.data })
         }
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice
+            await user.save()
+        }
+
+        res.status(200).json({ data: order })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -304,7 +306,7 @@ exports.getAllClients = (req, res) => {
 }
 exports.getUserOrders = (req, res) => {
     const userId = req.body.userId;
-    ImileOrders.find({ user: userId })
+    ImileOrders.find({ user: userId, status: { $ne: "failed" } })
         .then(o => {
             res.status(200).json({
                 data: o

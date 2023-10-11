@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
-const SmsaOrders = require("../model/orders/smsaOrders");
 const AnwanOrders = require("../model/orders/anwanOrders");
 const AramexOrders = require("../model/orders/aramexOrders");
 const GltOrders = require("../model/orders/gltOrders");
 const ImileOrders = require("../model/orders/imileOrders");
+const JtOrders = require("../model/orders/jtOrders");
 const SaeeOrders = require("../model/orders/saeeOrders");
+const SmsaOrders = require("../model/orders/smsaOrders");
+const SplOrders = require("../model/orders/splOrders");
 const Anwan = require("../model/companies/anwan");
 const Aramex = require("../model/companies/aramex");
 const Glt = require("../model/companies/glt");
@@ -151,14 +153,16 @@ exports.getAllCompanies = async (req, res) => {
 //  */
 exports.getAllOrders = async (req, res) => {
     try {
-        const saeeOrders = await SaeeOrders.find().populate("user");
-        const gltOrders = await GltOrders.find().populate("user");
-        const aramexOrders = await AramexOrders.find().populate("user");
-        const smsaOrders = await SmsaOrders.find().populate("user");
-        const anwanOrders = await AnwanOrders.find().populate("user");
-        const imileOrders = await ImileOrders.find().populate("user");
+        const anwanOrders = await AnwanOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const aramexOrders = await AramexOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const gltOrders = await GltOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const imileOrders = await ImileOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const jtOrders = await JtOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const saeeOrders = await SaeeOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const smsaOrders = await SmsaOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const splOrders = await SplOrders.find({ status: { $ne: "failed" } }).populate("user");
 
-        let orders = [...saeeOrders, ...gltOrders, ...aramexOrders, ...smsaOrders, ...anwanOrders, ...imileOrders];
+        let orders = [...anwanOrders, ...aramexOrders, ...gltOrders, ...imileOrders, ...jtOrders, ...saeeOrders, ...smsaOrders, ...splOrders];
         res.status(200).json({ data: { orders } })
     } catch (err) {
         console.log(err);
