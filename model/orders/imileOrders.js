@@ -12,7 +12,7 @@ const imileOrderSchema = mongoose.Schema({
     inovicedaftra: Object,
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'canceled'],
+        enum: ['failed', 'pending', 'accepted', 'canceled'],
         default: 'pending'
     }
 })

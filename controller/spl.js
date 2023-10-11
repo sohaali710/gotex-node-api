@@ -7,10 +7,9 @@ const SplOrders = require("../model/orders/splOrders");
 // const Daftra = require("../modules/daftra");
 //********************************************* */
 exports.createNewOrder = async (req, res) => {
-    const { receiverName, receiverMobile, senderName, markterCode, senderMobileNumber,
-        contentPrice, contentDescription, weight, pickUpDistrictID, pickUpAddress1,
-        pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2, pieces,
-        userId, cod } = req.body;
+    const { receiverName, receiverMobile, senderName, senderMobileNumber,
+        pickUpDistrictID, pickUpAddress1, pickUpAddress2, deliveryDistrictID, deliveryAddress1, deliveryAddress2,
+        contentPrice, contentDescription, pieces, weight, cod, userId } = req.body;
 
     const user = await User.findById(userId);
     const spl = await Spl.findOne();
@@ -205,7 +204,7 @@ exports.edit = (req, res) => {
 }
 exports.getUserOrders = async (req, res) => {
     const userId = req.body.userId;
-    SplOrders.find({ user: userId })
+    SplOrders.find({ user: userId, status: { $ne: "failed" } })
         .then(o => {
             res.status(200).json({
                 data: o

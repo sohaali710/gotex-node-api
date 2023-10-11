@@ -32,114 +32,98 @@ exports.createUserOrder = async (req, res) => {
     const clintid = req.body.clintid;
     /**************************** */
     const cod = req.body.cod;
-    if (cod) {
-        var paymentType = "COD";
-        var codAmount = res.locals.codAmount;
-        var paytype = "cod";
-    } else {
-        var paymentType = "CC";
-        var codAmount = null;
-        var paytype = "cc";
-    }
-    if (markterCode) {
-        var nameCode = `${sender} (${markterCode})`;
-    } else {
-        var nameCode = sender;
-    }
-    let data = {
-        orders: [
-            {
-                referenceNumber: ordersNum + Date.now() + "gotex",
-                pieces: pieces,
-                description: desc,
-                codAmount: codAmount,
-                paymentType: paymentType,
-                clintComment: comment,
-                value: value,
-                senderInformation: {
-                    address: s_address,
-                    city: {
-                        name: s_city
-                    },
-                    contactNumber: s_mobile
-                },
-                customer: {
-                    name: c_name,
-                    customerAddresses: {
-                        address: c_address,
-                        areaName: c_areaName,
+
+    try {
+        if (cod) {
+            var paymentType = "COD";
+            var codAmount = res.locals.codAmount;
+            var paytype = "cod";
+        } else {
+            var paymentType = "CC";
+            var codAmount = null;
+            var paytype = "cc";
+        }
+        if (markterCode) {
+            var nameCode = `${sender} (${markterCode})`;
+        } else {
+            var nameCode = sender;
+        }
+
+        let data = {
+            orders: [
+                {
+                    referenceNumber: ordersNum + Date.now() + "gotex",
+                    pieces: pieces,
+                    description: desc,
+                    codAmount: codAmount,
+                    paymentType: paymentType,
+                    clintComment: comment,
+                    value: value,
+                    senderInformation: {
+                        address: s_address,
                         city: {
-                            name: c_city
+                            name: s_city
                         },
+                        contactNumber: s_mobile
                     },
-                    mobile1: c_mobile
+                    customer: {
+                        name: c_name,
+                        customerAddresses: {
+                            address: c_address,
+                            areaName: c_areaName,
+                            city: {
+                                name: c_city
+                            },
+                        },
+                        mobile1: c_mobile
+                    },
+                    sender: nameCode,
+                    weight: weight
                 },
-                sender: nameCode,
-                weight: weight
+            ]
+        }
+        const config = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': process.env.GLT_TOKEN,
             },
-        ]
+            url: 'https://devapi.gltmena.com/api/create/order',
+            data: data
+        }
+        const response = await axios(config)
+
+        const order = await GltOrder.create({
+            user: req.user.user.id,
+            company: "glt",
+            ordernumber: ordersNum + 1,
+            paytype: paytype,
+            data: result,
+            price: totalShipPrice,
+            marktercode: markterCode,
+            createdate: new Date(),
+            invoice: ""
+        })
+
+        let result = response.data.data.orders[0]; // !Note: check this again        
+        if (result.status == 'fail') {
+            order.status = 'failed'
+            await order.save()
+            res.status(400).json({ msg: result.msg })
+        }
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice;
+            await user.save()
+        }
+
+        res.status(200).json({ data: order })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
+        })
     }
-    axios({
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.GLT_TOKEN,
-        },
-        url: 'https://devapi.gltmena.com/api/create/order',
-        data: data
-    })
-        .then(response => {
-            return response.data.data
-        })
-        .then(data => {
-            let result = data.orders[0];
-            if (result.status == 'fail') {
-                res.status(400).json({
-                    msg: result.msg
-                })
-            } else {
-                const newOrder = new GltOrder({
-                    user: req.user.user.id,
-                    company: "glt",
-                    ordernumber: ordersNum + 1,
-                    paytype: paytype,
-                    data: result,
-                    price: totalShipPrice,
-                    marktercode: markterCode,
-                    createdate: new Date(),
-                    invoice: ""
-                })
-                return newOrder.save();
-            }
-        })
-        .then(async o => {
-            if (clintid) {
-                const clint = await Clint.findById(clintid);
-                const co = {
-                    company: "glt",
-                    id: o._id
-                }
-                clint.wallet = clint.wallet - totalShipPrice;
-                clint.orders.push(co);
-                await clint.save();
-            }
-            if (!cod) {
-                user.wallet = user.wallet - totalShipPrice;
-                user.save()
-                    .then(u => {
-                        res.status(200).json({
-                            data: o
-                        })
-                    })
-            } else {
-                res.status(200).json({
-                    data: o
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-        })
 }
 exports.getSticker = async (req, res) => {
     const orderId = req.params.id;
@@ -203,7 +187,7 @@ exports.getAllCities = (req, res) => {
 }
 exports.getUserOrders = async (req, res) => {
     const userId = req.user.user.id;
-    GltOrder.find({ user: userId })
+    GltOrder.find({ user: userId, status: { $ne: "failed" } })
         .then(o => {
             res.status(200).json({
                 data: o

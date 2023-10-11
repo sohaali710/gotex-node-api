@@ -43,26 +43,29 @@ exports.createUserOrder = async (req, res) => {
             url: 'https://corporate.saeex.com/deliveryrequest/newpickup',
             data: data
         }
-
         const response = await axios(config)
+
+        const order = await SaeeOrder.create({
+            user: userId,
+            company: "saee",
+            ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
+            data: response.data,
+            paytype,
+            price: totalShipPrice,
+            createdate: new Date()
+        })
+
         if (!response.data.success) {
+            order.status = 'failed'
+            await order.save()
             return res.status(400).json({ msg: response.data })
-        } else {
-            user.wallet = cod ? user.wallet : (user.wallet - totalShipPrice);
-            await user.save()
-
-            const order = await SaeeOrder.create({
-                user: userId,
-                company: "saee",
-                ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
-                data: response.data,
-                paytype,
-                price: totalShipPrice,
-                createdate: new Date()
-            })
-
-            res.status(200).json({ msg: "order created", data: order })
         }
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice
+            await user.save()
+        }
+
+        res.status(200).json({ msg: "order created successfully", data: order })
     } catch (err) {
         console.log(err)
         res.status(500).json({

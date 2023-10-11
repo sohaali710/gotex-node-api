@@ -74,33 +74,33 @@ exports.createUserOrder = async (req, res) => {
             },
             data: data
         };
-
         const response = await axios(config)
+
+        const order = await SmsaOrders.create({
+            user: userId,
+            company: "smsa",
+            ordernumber: ordersNum + 1,
+            data: response.data,
+            paytype: paytype,
+            createdate: new Date()
+        })
+
         if (response.status !== 200) {
+            order.status = 'failed'
+            await order.save()
             return res.status(400).json({ msg: response.data })
-        } else {
-            const order = await SmsaOrders.create({
-                user: userId,
-                company: "smsa",
-                ordernumber: ordersNum + 1,
-                data: response.data,
-                paytype: paytype,
-                createdate: new Date()
-            })
-
-            response.data.waybills.forEach((a, i) => {
-                base64.base64Decode(a.awbFile, `public/smsaAwb/${ordersNum + 1}-p${i + 1}.pdf`);
-            })
-
-            if (!cod) {
-                user.wallet = user.wallet - totalShipPrice;
-                await user.save()
-            }
-
-            res.status(200).json({ msg: "order created", data: order })
         }
+        response.data.waybills.forEach((a, i) => {
+            base64.base64Decode(a.awbFile, `public/smsaAwb/${ordersNum + 1}-p${i + 1}.pdf`);
+        })
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice;
+            await user.save()
+        }
+
+        res.status(200).json({ msg: "order created successfully", data: order })
     } catch (err) {
-        console.log("**************")
         console.log(err)
         res.status(500).json({
             msg: err.message
@@ -168,7 +168,7 @@ exports.cancelOrder = async (req, res) => {
 exports.getUserOrders = (req, res) => {
     const userId = req.body.userId;
 
-    SmsaOrders.find({ user: userId })
+    SmsaOrders.find({ user: userId, status: { $ne: "failed" } })
         .then(order => {
             res.status(200).json({
                 data: order

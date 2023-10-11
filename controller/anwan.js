@@ -4,99 +4,91 @@ const Anwan = require("../model/companies/anwan");
 const AnwanOrders = require("../model/orders/anwanOrders");
 
 exports.createUserOrder = async (req, res) => {
-    const userId = req.body.userId
+    let { c_name, c_email, c_phone, c_city, c_address,
+        s_name, s_email, s_phone, s_city, s_address,
+        pieces, cod, weight, description, userId } = req.body
+
     const user = await User.findById(userId);
     let ordersNum = await AnwanOrders.count();
-    const totalShipPrice = res.locals.totalShipPrice;
-    let { s_phone, s_name, s_email, c_email, description, s_city, c_phone, s_address, c_name, c_city, pieces, c_address, cod, weight } = req.body
-    if (cod) {
-        var BookingMode = "COD"
-        var codValue = res.locals.codAmount;;
-        var paytype = "cod";
-    } else {
-        var BookingMode = "CC"
-        var codValue = 0;
-        var paytype = "cc";
-    }
-    var nameCode = s_name;
-    var data = {
-        "format": "json",
-        "secret_key": process.env.ANWAN_SECRET_KEY,
-        "customerId": process.env.ANWAN_CUSTOMER_ID,
-        "param": {
-            "sender_phone": s_phone,
-            "sender_name": nameCode,
-            "sender_email": s_email,
-            "receiver_email": c_email,
-            "description": description,
-            "origin": s_city,
-            "receiver_phone": c_phone,
-            "sender_address": s_address,
-            "receiver_name": c_name,
-            "destination": c_city,
-            "BookingMode": BookingMode,
-            "pieces": pieces,
-            "weight": weight,
-            "receiver_address": c_address,
-            "reference_id": `gotex-${ordersNum + "/" + Date.now()}`,
-            "codValue": codValue,
-            "productType": "Parcel"
-        }
-    };
-    var config = {
-        method: 'post',
-        url: 'https://api.fastcoo-tech.com/API_v2/CreateOrder',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        data: data
-    };
-    axios(config)
-        .then(async response => {
-            if (response.data.status !== 200) {
-                return res.status(400).json({
-                    error: response.data
-                })
-            } else {
-                const newOrder = new AnwanOrders({
-                    user: req.user.user.id,
-                    company: "anwan",
-                    ordernumber: ordersNum + 2,
-                    paytype: paytype,
-                    data: response.data,
-                    price: totalShipPrice,
-                    marktercode: markterCode,
-                    createdate: new Date(),
-                    inovicedaftra: invo
-                })
-                newOrder.save()
-                    .then(async (o) => {
-                        if (!cod) {
-                            user.wallet = user.wallet - totalShipPrice;
 
-                            user.save()
-                                .then(u => {
-                                    res.status(200).json({
-                                        data: o
-                                    })
-                                })
-                        } else {
-                            res.status(200).json({
-                                data: o
-                            })
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+    try {
+        if (cod) {
+            var BookingMode = "COD"
+            var codValue = res.locals.codAmount;;
+            var paytype = "cod";
+        } else {
+            var BookingMode = "CC"
+            var codValue = 0;
+            var paytype = "cc";
+        }
+        if (markterCode) {
+            var nameCode = `${s_name} (${markterCode})`;
+        } else {
+            var nameCode = s_name;
+        }
+        var data = {
+            "format": "json",
+            "secret_key": process.env.ANWAN_SECRET_KEY,
+            "customerId": process.env.ANWAN_CUSTOMER_ID,
+            "param": {
+                "sender_phone": s_phone,
+                "sender_name": nameCode,
+                "sender_email": s_email,
+                "receiver_email": c_email,
+                "description": description,
+                "origin": s_city,
+                "receiver_phone": c_phone,
+                "sender_address": s_address,
+                "receiver_name": c_name,
+                "destination": c_city,
+                "BookingMode": BookingMode,
+                "pieces": pieces,
+                "weight": weight,
+                "receiver_address": c_address,
+                "reference_id": `gotex-${ordersNum + "/" + Date.now()}`,
+                "codValue": codValue,
+                "productType": "Parcel"
             }
+        };
+        var config = {
+            method: 'post',
+            url: 'https://api.fastcoo-tech.com/API_v2/CreateOrder',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+        const response = await axios(config)
+
+        const order = await anwanorders.create({
+            user: req.user.user.id,
+            company: "anwan",
+            ordernumber: ordersNum + 2,
+            paytype: paytype,
+            data: response.data,
+            price: totalShipPrice,
+            marktercode: markterCode,
+            createdate: new Date()
         })
-        .catch(function (error) {
-            res.status(500).json({
-                msg: error
-            })
-            console.log(error);
-        });
+
+        if (response.data.status !== 200) {
+            order.status = 'failed'
+            await order.save()
+            return res.status(400).json({ error: response.data })
+        }
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice;
+            await user.save()
+        }
+
+        res.status(200).json({ data: order })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: error.message
+        })
+    }
 }
 exports.getSticker = (req, res) => {
     const orderId = req.params.id;
@@ -163,7 +155,7 @@ exports.getCities = (req, res) => {
 }
 exports.getUserOrders = (req, res) => {
     const userId = req.user.user.id;
-    AnwanOrders.find({ user: userId })
+    AnwanOrders.find({ user: userId, status: { $ne: "failed" } })
         .then(o => {
             res.status(200).json({
                 data: o
