@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
-const SmsaOrders = require("../model/orders/smsaOrders");
 const AnwanOrders = require("../model/orders/anwanOrders");
 const AramexOrders = require("../model/orders/aramexOrders");
 const GltOrders = require("../model/orders/gltOrders");
 const ImileOrders = require("../model/orders/imileOrders");
+const JtOrders = require("../model/orders/jtOrders");
 const SaeeOrders = require("../model/orders/saeeOrders");
+const SmsaOrders = require("../model/orders/smsaOrders");
+const SplOrders = require("../model/orders/splOrders");
 const Anwan = require("../model/companies/anwan");
 const Aramex = require("../model/companies/aramex");
 const Glt = require("../model/companies/glt");
@@ -14,6 +16,7 @@ const Jt = require("../model/companies/jt");
 const Saee = require("../model/companies/saee");
 const Smsa = require("../model/companies/smsa");
 const Spl = require("../model/companies/spl");
+
 
 
 exports.logIn = (req, res) => {
@@ -122,9 +125,10 @@ exports.unProofCrForUser = async (req, res) => {
         })
     }
 }
-// /**
-//  * @Desc : Companies CRUD
-//  */
+
+/**
+ * @Desc : Companies CRUD
+ */
 exports.getAllCompanies = async (req, res) => {
     try {
         const anwan = await Anwan.findOne();
@@ -146,20 +150,38 @@ exports.getAllCompanies = async (req, res) => {
         })
     }
 }
-// /**
-//  * @Desc : Orders CRUD
-//  */
+/**
+ * @Desc : Orders CRUD
+ */
 exports.getAllOrders = async (req, res) => {
-    try {
-        const saeeOrders = await SaeeOrders.find().populate("user");
-        const gltOrders = await GltOrders.find().populate("user");
-        const aramexOrders = await AramexOrders.find().populate("user");
-        const smsaOrders = await SmsaOrders.find().populate("user");
-        const anwanOrders = await AnwanOrders.find().populate("user");
-        const imileOrders = await ImileOrders.find().populate("user");
+    const page = +req.query.page || 1
+    const limit = +req.query.limit || 20 // max number of items (orders) per page
+    const skip = (page - 1) * limit
 
-        let orders = [...saeeOrders, ...gltOrders, ...aramexOrders, ...smsaOrders, ...anwanOrders, ...imileOrders];
-        res.status(200).json({ data: { orders } })
+    try {
+        const anwanOrders = await AnwanOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const aramexOrders = await AramexOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const gltOrders = await GltOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const imileOrders = await ImileOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const jtOrders = await JtOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const saeeOrders = await SaeeOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const smsaOrders = await SmsaOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const splOrders = await SplOrders.find({ status: { $ne: "failed" } }).populate("user");
+
+        let orders = [...anwanOrders, ...aramexOrders, ...gltOrders, ...imileOrders, ...jtOrders, ...saeeOrders, ...smsaOrders, ...splOrders];
+        const numberOfOrders = orders.length
+        const numberOfPages = (numberOfOrders % limit == 0) ? numberOfOrders / limit : Math.floor(numberOfOrders / limit) + 1;
+        const ordersPerPage = orders.slice(skip, skip + limit)
+
+        res.status(200).json({
+            result: ordersPerPage.length,
+            pagination: {
+                currentPage: page,
+                limit,
+                numberOfPages
+            },
+            data: ordersPerPage
+        })
     } catch (err) {
         console.log(err);
         res.status(500).json({
@@ -167,5 +189,4 @@ exports.getAllOrders = async (req, res) => {
             error: err.message
         })
     }
-
 }
