@@ -1,11 +1,12 @@
 const express = require("express");
 const routes = express.Router();
 const { isAdminAuth } = require("../middleware/admin");
-const { anwanCheck } = require("../middleware/company");
 const { isValid } = require("../middleware/api-test");
 const { createUserOrder, getSticker, getCities, getUserOrders, edit } = require("../controller/anwan");
+const Anwan = require("../model/companies/anwan");
+const { checkCompany } = require("../middleware/company");
 
-routes.post("/create-user-order", isValid, anwanCheck, createUserOrder);
+routes.post("/create-user-order", isValid, checkCompany(Anwan), createUserOrder);
 routes.post("/print-sticker/:id", getSticker);
 
 routes.post("/get-all-cities", isValid, getCities);
