@@ -193,7 +193,7 @@ exports.getUserBalance = async (req, res) => {
     try {
         const user = await User.findById(id)
         if (!user) {
-            res.status(400).json({ msg: "error this user doesn't exist" })
+            return res.status(400).json({ msg: "error this user doesn't exist" })
         }
 
         res.status(200).json({ data: { balance: user.wallet } })
@@ -342,6 +342,33 @@ exports.generateApiKeyForProduction = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
+            error: err.message
+        })
+    }
+}
+
+/** Integration routes */
+exports.getUserData = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(400).json({ msg: "error this user doesn't exist" })
+        }
+
+        res.status(200).json({
+            data: {
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                wallet: user.wallet
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: "server error",
             error: err.message
         })
     }
