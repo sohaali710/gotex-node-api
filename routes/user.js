@@ -14,7 +14,7 @@ routes.post("/forget-password-email", forgetPasswordEmail);
 routes.post("/set-new-password/:code", setNewPassword);
 
 routes.get('/get-user-balance', isAuth, getUserBalance);
-routes.post("/add-user-balance", isAuth, addBalance);
+// routes.post("/add-user-balance", isAuth, addBalance);  cancel this for production 
 routes.get("/checkpayment/:status/:uId/:code", checkPaymentOrder);
 routes.get("/get-all-payment-orders", isAuth, getAllPaymentOrders);
 
