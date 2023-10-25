@@ -4,7 +4,7 @@ exports.checkCompany = (CompanyModel) => {
     return (
         async (req, res, next) => {
             let { userId, cod, weight, shipmentValue } = req.body
-            const userRolle = "user"
+            // const roll = "user"
 
             try {
                 const company = await CompanyModel.findOne();
@@ -17,38 +17,14 @@ exports.checkCompany = (CompanyModel) => {
 
                 if (cod) {
                     if (!shipmentValue) shipmentValue = 0;
+                    var shipPrice = company.codprice;
 
-                    if (userRolle == "user") {
-                        if (user.inv) {
-                            var codPrice = user.inv.companies[1].cod;
-                            var shipPrice = codPrice;
-                        } else {
-                            var shipPrice = company.codprice;
-                        }
-                    } else {
-                        var shipPrice = cod;
-                        if (cod > company.maxcodmarkteer) {
-                            return res.status(400).json({ msg: "cod price is greater than your limit" })
-                        }
-                        if (cod < company.mincodmarkteer) {
-                            return res.status(400).json({ msg: "cod price is less than your limit" })
-                        }
-                    }
                     res.locals.codAmount = shipPrice + weightPrice + shipmentValue; // 10 + (25 - 15)22 + 100
                     res.locals.totalShipPrice = shipPrice + weightPrice;
 
                     next()
                 } else {
-                    if (userRolle == "user") {
-                        if (user.inv) {
-                            var onlinePrice = user.inv.companies[1].onlinePayment;
-                            var shipPrice = onlinePrice;
-                        } else {
-                            var shipPrice = company.userprice;
-                        }
-                    } else {
-                        var shipPrice = company.marketerprice;
-                    }
+                    var shipPrice = company.userprice;
 
                     if (user.wallet < (shipPrice + weightPrice)) {
                         return res.status(400).json({ msg: "Your wallet balance is not enough to make the shipment" })
