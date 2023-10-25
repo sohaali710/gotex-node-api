@@ -4,7 +4,7 @@ const Saee = require("../model/companies/saee");
 const SaeeOrder = require("../model/orders/saeeOrders");
 
 exports.createUserOrder = async (req, res) => {
-    const pickup = req.query.pickup || false // by default pickup=false (last mile order)
+    const pickup = req.query.pickup || true // true (default) -> pickup order | false -> last mile
     const {
         p_name, p_city, p_mobile, p_streetaddress,
         c_name, c_city, c_mobile, c_streetaddress,
