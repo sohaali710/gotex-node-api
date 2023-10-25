@@ -3,7 +3,7 @@ const User = require("../model/user");
 const Saee = require("../model/companies/saee");
 const SaeeOrder = require("../model/orders/saeeOrders");
 
-
+/** pickup shipment */
 exports.createUserOrder = async (req, res) => {
     const {
         p_name, p_city, p_mobile, p_streetaddress,
@@ -18,7 +18,6 @@ exports.createUserOrder = async (req, res) => {
 
     try {
         const paytype = cod ? "cod" : "cc";
-        const nameCode = p_name;
 
         const data = {
             secret: process.env.SAEE_KEY_P,
@@ -26,11 +25,11 @@ exports.createUserOrder = async (req, res) => {
             cashondelivery,
 
             p_name, p_city, p_mobile, p_streetaddress,
-            c_name, c_city, c_mobile, c_streetaddress, weight, quantity,
-            cod, description,
+            c_name, c_city, c_mobile, c_streetaddress,
+            weight, quantity, description, cod,
 
             ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
-            sendername: nameCode,
+            sendername: p_name,
             senderphone: p_mobile,
             senderaddress: p_streetaddress,
             sendercity: p_city,
@@ -41,6 +40,73 @@ exports.createUserOrder = async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json;charset=utf-8' },
             url: 'https://k-w-h.com/deliveryrequest/newpickup',
+            data: data
+        }
+        const response = await axios(config)
+
+        const order = await SaeeOrder.create({
+            user: userId,
+            company: "saee",
+            ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
+            data: response.data,
+            paytype,
+            price: totalShipPrice,
+            createdate: new Date()
+        })
+
+        if (!response.data.success) {
+            order.status = 'failed'
+            await order.save()
+            return res.status(400).json({ msg: response.data })
+        }
+
+        if (!cod) {
+            user.wallet = user.wallet - totalShipPrice
+            await user.save()
+        }
+
+        res.status(200).json({ msg: "order created", data: order })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
+        })
+    }
+}
+exports.createOrderLastMile = async (req, res) => {
+    const {
+        name, city, mobile, streetaddress,
+        weight, quantity, cod, description, userId } = req.body
+
+    const totalShipPrice = res.locals.totalShipPrice;
+    const cashondelivery = res.locals.codAmount;
+
+    const user = await User.findById(userId);
+    let ordersNum = await SaeeOrder.count();
+
+    try {
+        const paytype = cod ? "cod" : "cc";
+
+        const data = {
+            secret: process.env.SAEE_KEY_P,
+            cashonpickup: 0,
+            cashondelivery,
+
+            name, city, mobile, streetaddress,
+            weight, quantity, description, cod,
+
+            ordernumber: `${ordersNum + "/" + Date.now() + "gotex"}`,
+            sendername: name,
+            senderphone: mobile,
+            senderaddress: streetaddress,
+            sendercity: city,
+            // sendercountry: "SA"
+        }
+
+        const config = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            url: 'https://k-w-h.com/deliveryrequest/new',
             data: data
         }
         const response = await axios(config)
