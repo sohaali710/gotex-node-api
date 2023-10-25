@@ -305,7 +305,7 @@ exports.createPickup = async (req, res) => {
                 "AccountPin": process.env.AR_PIN,
                 "AccountEntity": "JED",
                 "AccountCountryCode": "SA",
-                "Source": 24,
+                "Source": 0,
                 "PreferredLanguageCode": null
             },
             "Pickup": {
@@ -338,7 +338,7 @@ exports.createPickup = async (req, res) => {
                     "FaxNumber": null,
                     "CellPhone": p_CellPhone,
                     "EmailAddress": p_email,
-                    "Type": null
+                    "Type": ""
                 },
                 "PickupLocation": p_city,
                 "PickupDate": `/Date(${pickupDate}+0530)/`,
@@ -352,7 +352,7 @@ exports.createPickup = async (req, res) => {
                 "Shipments": null,
                 "PickupItems": [{
                     "ProductGroup": "DOM",
-                    "ProductType": "ONP",
+                    "ProductType": "CDS",
                     "NumberOfShipments": 1,
                     "PackageType": "Box",
                     "Payment": "P",
