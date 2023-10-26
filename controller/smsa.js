@@ -82,6 +82,7 @@ exports.createUserOrder = async (req, res) => {
             ordernumber: ordersNum + 1,
             data: response.data,
             paytype: paytype,
+            price: totalShipPrice,
             createdate: new Date()
         })
 
