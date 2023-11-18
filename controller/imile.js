@@ -8,7 +8,7 @@ const ImileClients = require("../model/clients/imileClients");
 exports.createOrder = async (req, res) => {
     const { p_company,
         c_company, c_name, c_mobile, c_city, c_street, c_address, weight,
-        cod, goodsValue, skuName, skuDetailList, userId } = req.body
+        cod, goodsValue, skuName, skuTotal, skuDetailList = [], userId } = req.body
     // const c_zipcode = req.bode.c_zipcode;
 
     let ordersNum = await ImileOrders.count();
@@ -62,7 +62,7 @@ exports.createOrder = async (req, res) => {
                 "totalCount": 1,
                 "totalWeight": weight,
                 "totalVolume": 0,
-                "skuTotal": skuDetailList.length,
+                "skuTotal": skuTotal,
                 "skuName": skuName,
                 "deliveryRequirements": "",
                 "orderDescription": "",
