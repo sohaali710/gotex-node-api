@@ -1,6 +1,4 @@
 const User = require("../model/user");
-const sendEmail = require("../modules/sendEmail");
-const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.checkCompany = (CompanyModel) => {
     return (

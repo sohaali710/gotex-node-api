@@ -4,6 +4,8 @@ const Jt = require("../model/companies/jt");
 const JtOrders = require("../model/orders/jtOrders");
 var crypto = require('crypto');
 const qs = require('qs');
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createUserOrder = async (req, res) => {
     let { re_address, re_city, re_mobile, re_name, re_prov,
@@ -109,6 +111,11 @@ exports.createUserOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 

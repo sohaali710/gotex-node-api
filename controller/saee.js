@@ -2,6 +2,8 @@ const axios = require("axios");
 const User = require("../model/user");
 const Saee = require("../model/companies/saee");
 const SaeeOrder = require("../model/orders/saeeOrders");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createUserOrder = async (req, res) => {
     const pickup = req.query.pickup || true // true (default) -> pickup order | false -> last mile
@@ -85,6 +87,11 @@ exports.createUserOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 

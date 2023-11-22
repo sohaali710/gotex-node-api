@@ -4,6 +4,8 @@ const User = require("../model/user");
 const Imile = require("../model/companies/imile");
 const ImileOrders = require("../model/orders/imileOrders");
 const ImileClients = require("../model/clients/imileClients");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createOrder = async (req, res) => {
     const { p_company,
@@ -110,6 +112,11 @@ exports.createOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 
