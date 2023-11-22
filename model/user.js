@@ -44,6 +44,10 @@ const userSchema = mongoose.Schema({
             type: Boolean,
             default: false
         }
+    },
+    isSentBalanceAlert: {
+        type: Boolean,
+        default: false
     }
 })
 

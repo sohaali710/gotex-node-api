@@ -8,6 +8,7 @@ const user = require("../model/user");
 const sendEmail = require("../modules/sendEmail");
 const genRandomString = require("../modules/genRandomString");
 const genRandomKey = require("../modules/genRandomKey");
+const mailSubject = "Verify your gotex account"
 
 /**
  * @Desc : User Registration
@@ -43,7 +44,7 @@ exports.signUp = async (req, res) => {
         })
 
         if (user) {
-            sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs");
+            sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs", mailSubject);
             res.status(200).json({ msg: "ok", user })
         }
     } catch (err) {
@@ -126,7 +127,7 @@ exports.reSendActivateCode = async (req, res) => {
         user.emailCode = genRandomString(4);
         await user.save()
 
-        sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs");
+        sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs", mailSubject);
         res.status(200).json({ msg: "email send" })
     } catch (err) {
         console.log(err)
@@ -152,7 +153,7 @@ exports.forgetPasswordEmail = async (req, res) => {
         user.emailCode = genRandomString(4);
         await user.save();
 
-        sendEmail(user.email, user.emailCode, user._id, "/../views/password_mail.ejs");
+        sendEmail(user.email, user.emailCode, user._id, "/../views/password_mail.ejs", mailSubject);
         return res.status(200).json({ msg: "the email has been sent" })
     } catch (err) {
         console.log(err)
@@ -276,6 +277,7 @@ exports.checkPaymentOrder = async (req, res) => {
         }
         if (status == "authorised") {
             user.wallet = user.wallet + order.amount
+            user.isSentBalanceAlert = false
         }
         order.status = status;
         order.code = genRandomString(10);

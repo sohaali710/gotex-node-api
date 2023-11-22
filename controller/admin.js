@@ -72,6 +72,7 @@ exports.addWalletToUser = async (req, res) => {
         }
 
         user.wallet = user.wallet + deposit;
+        user.isSentBalanceAlert = false
         await user.save()
 
         res.status(200).json({ msg: "ok" })

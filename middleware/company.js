@@ -1,4 +1,6 @@
 const User = require("../model/user");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.checkCompany = (CompanyModel) => {
     return (
@@ -26,8 +28,9 @@ exports.checkCompany = (CompanyModel) => {
                 } else {
                     var shipPrice = company.userprice;
 
-                    if (user.wallet < (shipPrice + weightPrice)) {
-                        return res.status(400).json({ msg: "Your wallet balance is not enough to make the shipment" })
+                    /** allow to make orders as long as the wallet balance is >= -5000 + order price */
+                    if (user.wallet <= (shipPrice + weightPrice - 5000)) {
+                        return res.status(400).json({ msg: "Your wallet balance is not enough to make the shipment." })
                     }
                     res.locals.codAmount = 0;
                     res.locals.totalShipPrice = shipPrice + weightPrice;
