@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 
-const sendEmail = async (email, text, id, temp) => {
+const sendEmail = async (email, param1, param2, temp, mailSubject) => {
     try {
         const transporter = nodemailer.createTransport({
             host: "smtp.hostinger.com",
@@ -13,7 +13,7 @@ const sendEmail = async (email, text, id, temp) => {
             },
         });
 
-        ejs.renderFile(__dirname + temp, { code: text, id: id }, async function (err, data) {
+        ejs.renderFile(__dirname + temp, { param1, param2 }, async function (err, data) {
             if (err) {
                 console.log(err);
             } else {
@@ -23,7 +23,7 @@ const sendEmail = async (email, text, id, temp) => {
                         address: process.env.EMAIL
                     },
                     to: email,
-                    subject: "Verify your gotex account",
+                    subject: mailSubject,
                     html: data,
                 }, (error, result) => {
                     if (error) return console.error(error);
