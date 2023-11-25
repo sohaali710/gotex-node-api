@@ -4,6 +4,8 @@ const Jt = require("../model/companies/jt");
 const JtOrders = require("../model/orders/jtOrders");
 var crypto = require('crypto');
 const qs = require('qs');
+const fs = require("fs");
+const base64 = require('base64topdf');
 const sendEmail = require("../modules/sendEmail");
 const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
@@ -152,13 +154,16 @@ exports.getSticker = async (req, res) => {
                 'timestamp': '1638428570653',
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
+            responseType: 'arraybuffer',
             data: data
         };
         const response = await axios(config);
+        base64.base64Decode(response.data, `public/jtAwb/${orderId}.pdf`)
         res.status(200).json({
-            data: response.data
+            msg: "ok",
+            data: `/jtAwb/${orderId}.pdf`
         })
-        // return res.status(200).redirect(response.data)
+        setTimeout(() => { fs.unlink(`public/jtAwb/${orderId}.pdf`, () => { }) }, 30 * 60 * 1000);
     } catch (error) {
         console.log(error)
         res.status(500).json({
