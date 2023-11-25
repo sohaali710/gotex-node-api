@@ -237,7 +237,35 @@ exports.getSticker = async (req, res) => {
             return res.status(400).json({ msg: response.data })
         }
 
-        return res.status(200).redirect(response.data.data[0].label)
+        return res.status(200).json({ billUrl: response.data.data[0].label })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err.message
+        })
+    }
+}
+exports.getStickerTest = async (req, res) => {
+    const orderId = req.params.id;
+
+    try {
+        const data = JSON.stringify({
+            "userId": "6505cbac8bacd0730c48f115",
+            "apiKey": "6PB6XO491a9Ge8jXyhYeZqClzx@n0ODhMluWlYZ0XAmN4vdb4rklo2vTM1$TqMgnpJBk7n15xZ$WJdaQBR!hlthwMtMN8Icd95GdO6z$BxkXj73R7SNtA%GkGhc1guWujwrBZ1yf!TxrJe1R3XajwC"
+        })
+
+        const config = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: `https://dashboard.go-tex.net/gotex-co-test/imile/print-sticker/${orderId}`,
+            data: data
+        }
+
+        const response = await axios(config)
+
+        return res.status(200).json(response.data)
     } catch (err) {
         console.log(err)
         res.status(500).json({
