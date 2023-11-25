@@ -9,8 +9,7 @@ const { createOrder, addClient, getSticker, cancelOrder, getAllClients, getUserO
 routes.post("/create-user-order", isValid, checkCompany(Imile), createOrder);
 routes.post("/add-client", isValid, addClient);
 routes.post("/get-all-clients", isValid, getAllClients);
-routes.post("/print-sticker/:id", isValid, getSticker);
-routes.get("/print-sticker-test/:id", getStickerTest);
+routes.post("/print-sticker/:id", isValid, getSticker); ks
 routes.post("/cancel-order", isValid, cancelOrder);
 
 routes.post("/get-user-orders", isValid, getUserOrders);
