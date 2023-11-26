@@ -12,7 +12,7 @@ const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR
 exports.createUserOrder = async (req, res) => {
     let { re_address, re_city, re_mobile, re_name, re_prov,
         s_address, s_city, s_mobile, s_name, s_prov, description,
-        weight, goodsType, items, cod, userId } = req.body;
+        weight, goodsType, totalQuantity, items = [], cod, userId } = req.body;
 
     try {
         const user = await User.findById(userId);
@@ -56,7 +56,7 @@ exports.createUserOrder = async (req, res) => {
         "txlogisticId":"${1695119354337}Gotex",
         "goodsType":"${goodsType}",
         "priceCurrency":"SAR",
-        "totalQuantity":${items.length},
+        "totalQuantity":${totalQuantity},
         "sender":{
            "address":"${s_address}",
            "street":"",
