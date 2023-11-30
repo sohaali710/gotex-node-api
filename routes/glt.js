@@ -1,11 +1,12 @@
 const express = require("express");
 const routes = express.Router();
-const { gltCheck } = require("../middleware/company");
+const Glt = require("../model/companies/glt");
+const { checkCompany } = require("../middleware/company");
 const { isValid } = require("../middleware/api-production");
 const { isAdminAuth } = require("../middleware/admin");
 const { createUserOrder, getSticker, getAllCities, getUserOrders, edit } = require("../controller/glt");
 
-routes.post("/create-user-order", isValid, gltCheck, createUserOrder);
+routes.post("/create-user-order", isValid, checkCompany(Glt), createUserOrder);
 routes.post("/print-sticker/:id", getSticker);
 // routes.post("/track-order-by-number", isValid, trakingOrderByNum);
 

@@ -73,6 +73,7 @@ exports.addWalletToUser = async (req, res) => {
         }
 
         user.wallet = user.wallet + deposit;
+        user.isSentBalanceAlert = false
         await user.save()
 
         res.status(200).json({ msg: "ok" })
@@ -154,34 +155,17 @@ exports.getAllCompanies = async (req, res) => {
  * @Desc : Orders CRUD
  */
 exports.getAllOrders = async (req, res) => {
-    const page = +req.query.page || 1
-    const limit = +req.query.limit || 20 // max number of items (orders) per page
-    const skip = (page - 1) * limit
-
     try {
-        const anwanOrders = await AnwanOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const aramexOrders = await AramexOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const gltOrders = await GltOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const imileOrders = await ImileOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const jtOrders = await JtOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const saeeOrders = await SaeeOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const smsaOrders = await SmsaOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const splOrders = await SplOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const saeeOrders = await SaeeOrders.find().populate("user");
+        const gltOrders = await GltOrders.find().populate("user");
+        const aramexOrders = await AramexOrders.find().populate("user");
+        const smsaOrders = await SmsaOrders.find().populate("user");
+        const anwanOrders = await AnwanOrders.find().populate("user");
+        const imileOrders = await ImileOrders.find().populate("user");
+        const jtOrders = await JtOrders.find().populate("user");
 
-        let orders = [...anwanOrders, ...aramexOrders, ...gltOrders, ...imileOrders, ...jtOrders, ...saeeOrders, ...smsaOrders, ...splOrders];
-        const numberOfOrders = orders.length
-        const numberOfPages = (numberOfOrders % limit == 0) ? numberOfOrders / limit : Math.floor(numberOfOrders / limit) + 1;
-        const ordersPerPage = orders.slice(skip, skip + limit)
-
-        res.status(200).json({
-            result: ordersPerPage.length,
-            pagination: {
-                currentPage: page,
-                limit,
-                numberOfPages
-            },
-            data: ordersPerPage
-        })
+        let orders = [...saeeOrders, ...gltOrders, ...aramexOrders, ...jtOrders, ...smsaOrders, ...anwanOrders, ...imileOrders];
+        res.status(200).json({ data: { orders } })
     } catch (err) {
         console.log(err);
         res.status(500).json({

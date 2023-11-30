@@ -1,11 +1,12 @@
 const express = require("express");
 const routes = express.Router();
+const Imile = require("../model/companies/imile");
+const { checkCompany } = require("../middleware/company");
 const { isAdminAuth } = require("../middleware/admin");
 const { isValid } = require("../middleware/api-production");
-const { imileCheck } = require("../middleware/company");
 const { createOrder, addClient, getSticker, cancelOrder, getAllClients, getUserOrders, edit } = require("../controller/imile");
 
-routes.post("/create-user-order", isValid, imileCheck, createOrder);
+routes.post("/create-user-order", isValid, checkCompany(Imile), createOrder);
 routes.post("/add-client", isValid, addClient);
 routes.post("/get-all-clients", isValid, getAllClients);
 routes.post("/print-sticker/:id", isValid, getSticker);

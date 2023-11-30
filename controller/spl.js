@@ -4,7 +4,8 @@ const cron = require('node-cron');
 const User = require("../model/user");
 const Spl = require("../model/companies/spl");
 const SplOrders = require("../model/orders/splOrders");
-// const Daftra = require("../modules/daftra");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 //********************************************* */
 exports.createNewOrder = async (req, res) => {
     const { receiverName, receiverMobile, senderName, senderMobileNumber,
@@ -107,6 +108,16 @@ exports.createNewOrder = async (req, res) => {
                 createdate: new Date()
                 // inovicedaftra: invo
             })
+
+            if (!cod) {
+                user.wallet = user.wallet - totalShipPrice;
+                if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                    sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                    user.isSentBalanceAlert = true
+                    await user.save()
+                }
+                await user.save()
+            }
 
             res.status(200).json({
                 receiver: {

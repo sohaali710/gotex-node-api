@@ -4,11 +4,13 @@ const User = require("../model/user");
 const Imile = require("../model/companies/imile");
 const ImileOrders = require("../model/orders/imileOrders");
 const ImileClients = require("../model/clients/imileClients");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createOrder = async (req, res) => {
     const { p_company,
         c_company, c_name, c_mobile, c_city, c_street, c_address, weight,
-        cod, goodsValue, skuName, skuDetailList, userId } = req.body
+        cod, skuName, skuTotal, skuDetailList = [], userId } = req.body
     // const c_zipcode = req.bode.c_zipcode;
 
     let ordersNum = await ImileOrders.count();
@@ -56,13 +58,13 @@ exports.createOrder = async (req, res) => {
                 "consigneeExternalNo": "",
                 "consigneeInternalNo": "",
                 "consigneeAddress": c_address,
-                "goodsValue": goodsValue,
+                "goodsValue": "",
                 "collectingMoney": codAmount,
                 "paymentMethod": paymentMethod,
                 "totalCount": 1,
                 "totalWeight": weight,
                 "totalVolume": 0,
-                "skuTotal": skuDetailList.length,
+                "skuTotal": skuTotal,
                 "skuName": skuName,
                 "deliveryRequirements": "",
                 "orderDescription": "",
@@ -110,6 +112,11 @@ exports.createOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 
@@ -230,7 +237,7 @@ exports.getSticker = async (req, res) => {
             return res.status(400).json({ msg: response.data })
         }
 
-        return res.status(200).redirect(response.data.data[0].label)
+        return res.status(200).json({ billUrl: response.data.data[0].label })
     } catch (err) {
         console.log(err)
         res.status(500).json({

@@ -1,8 +1,8 @@
 const express = require("express");
 const routes = express.Router();
-const { signUp, marketerSignUp, logIn, activateUser, reSendActivateCode, forgetPasswordEmail, setNewPassword, getUserBalance, addBalance, checkPaymentOrder, getAllPaymentOrders, generateApiKeyForTest, generateApiKeyForProduction } = require("../controller/user");
+const { signUp, marketerSignUp, logIn, activateUser, reSendActivateCode, forgetPasswordEmail, setNewPassword, getUserBalance, addBalance, checkPaymentOrder, getAllPaymentOrders, generateApiKeyForTest, generateApiKeyForProduction, getUserData } = require("../controller/user");
 const { isValid, isAuth } = require('../middleware/user');
-
+const { isValid: isValidApi } = require("../middleware/api-test");
 
 routes.post('/signup', isValid, signUp);
 routes.post('/login', logIn);
@@ -20,5 +20,7 @@ routes.get("/get-all-payment-orders", isAuth, getAllPaymentOrders);
 
 routes.get("/get-test-api-key", isAuth, generateApiKeyForTest);
 routes.get("/get-production-api-key", isAuth, generateApiKeyForProduction);
+
+routes.get('/get-user-data', isValidApi, getUserData);
 
 module.exports = routes;

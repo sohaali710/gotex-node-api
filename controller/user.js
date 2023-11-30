@@ -8,6 +8,7 @@ const user = require("../model/user");
 const sendEmail = require("../modules/sendEmail");
 const genRandomString = require("../modules/genRandomString");
 const genRandomKey = require("../modules/genRandomKey");
+const mailSubject = "Verify your gotex account"
 
 /**
  * @Desc : User Registration
@@ -43,7 +44,7 @@ exports.signUp = async (req, res) => {
         })
 
         if (user) {
-            sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs");
+            sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs", mailSubject);
             res.status(200).json({ msg: "ok", user })
         }
     } catch (err) {
@@ -126,7 +127,7 @@ exports.reSendActivateCode = async (req, res) => {
         user.emailCode = genRandomString(4);
         await user.save()
 
-        sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs");
+        sendEmail(user.email, user.emailCode, user._id, "/../views/emailTemp.ejs", mailSubject);
         res.status(200).json({ msg: "email send" })
     } catch (err) {
         console.log(err)
@@ -152,7 +153,7 @@ exports.forgetPasswordEmail = async (req, res) => {
         user.emailCode = genRandomString(4);
         await user.save();
 
-        sendEmail(user.email, user.emailCode, user._id, "/../views/password_mail.ejs");
+        sendEmail(user.email, user.emailCode, user._id, "/../views/password_mail.ejs", mailSubject);
         return res.status(200).json({ msg: "the email has been sent" })
     } catch (err) {
         console.log(err)
@@ -193,7 +194,7 @@ exports.getUserBalance = async (req, res) => {
     try {
         const user = await User.findById(id)
         if (!user) {
-            res.status(400).json({ msg: "error this user doesn't exist" })
+            return res.status(400).json({ msg: "error this user doesn't exist" })
         }
 
         res.status(200).json({ data: { balance: user.wallet } })
@@ -276,6 +277,7 @@ exports.checkPaymentOrder = async (req, res) => {
         }
         if (status == "authorised") {
             user.wallet = user.wallet + order.amount
+            user.isSentBalanceAlert = false
         }
         order.status = status;
         order.code = genRandomString(10);
@@ -342,6 +344,33 @@ exports.generateApiKeyForProduction = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
+            error: err.message
+        })
+    }
+}
+
+/** Integration routes */
+exports.getUserData = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(400).json({ msg: "error this user doesn't exist" })
+        }
+
+        res.status(200).json({
+            data: {
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                wallet: user.wallet
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            msg: "server error",
             error: err.message
         })
     }

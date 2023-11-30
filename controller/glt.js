@@ -6,6 +6,8 @@ const qs = require('qs');
 const fs = require('fs');
 const base64 = require('base64topdf');
 const PDFDocument = require('pdfkit');
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createUserOrder = async (req, res) => {
     let ordersNum = await GltOrder.count();
@@ -114,6 +116,11 @@ exports.createUserOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 

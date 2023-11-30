@@ -4,11 +4,15 @@ const Jt = require("../model/companies/jt");
 const JtOrders = require("../model/orders/jtOrders");
 var crypto = require('crypto');
 const qs = require('qs');
+const fs = require("fs");
+const base64 = require('base64topdf');
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createUserOrder = async (req, res) => {
     let { re_address, re_city, re_mobile, re_name, re_prov,
         s_address, s_city, s_mobile, s_name, s_prov, description,
-        weight, goodsType, items, cod, userId } = req.body;
+        weight, goodsType, totalQuantity, items = [], cod, userId } = req.body;
 
     try {
         const user = await User.findById(userId);
@@ -52,7 +56,7 @@ exports.createUserOrder = async (req, res) => {
         "txlogisticId":"${1695119354337}Gotex",
         "goodsType":"${goodsType}",
         "priceCurrency":"SAR",
-        "totalQuantity":${items.length},
+        "totalQuantity":${totalQuantity},
         "sender":{
            "address":"${s_address}",
            "street":"",
@@ -109,6 +113,11 @@ exports.createUserOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 
@@ -145,13 +154,16 @@ exports.getSticker = async (req, res) => {
                 'timestamp': '1638428570653',
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
+            responseType: 'arraybuffer',
             data: data
         };
         const response = await axios(config);
+        base64.base64Decode(response.data, `public/jtAwb/${orderId}.pdf`)
         res.status(200).json({
-            data: response.data
+            msg: "ok",
+            data: `/jtAwb/${orderId}.pdf`
         })
-        // return res.status(200).redirect(response.data)
+        setTimeout(() => { fs.unlink(`public/jtAwb/${orderId}.pdf`, () => { }) }, 30 * 60 * 1000);
     } catch (error) {
         console.log(error)
         res.status(500).json({

@@ -2,6 +2,8 @@ const axios = require("axios");
 const User = require("../model/user");
 const Anwan = require("../model/companies/anwan");
 const AnwanOrders = require("../model/orders/anwanOrders");
+const sendEmail = require("../modules/sendEmail");
+const balanceAlertMailSubject = "Alert! Your wallet balance is less than 100 SAR."
 
 exports.createUserOrder = async (req, res) => {
     let { c_name, c_email, c_phone, c_city, c_address,
@@ -79,6 +81,11 @@ exports.createUserOrder = async (req, res) => {
 
         if (!cod) {
             user.wallet = user.wallet - totalShipPrice;
+            if (user.wallet <= 100 && !user.isSentBalanceAlert) {
+                sendEmail(user.email, "", "", "/../views/balanceAlert.ejs", balanceAlertMailSubject)
+                user.isSentBalanceAlert = true
+                await user.save()
+            }
             await user.save()
         }
 
