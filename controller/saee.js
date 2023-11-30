@@ -22,7 +22,7 @@ exports.createUserOrder = async (req, res) => {
         const paytype = cod ? "cod" : "cc";
         let data = {}, url = '';
         if (pickup) {
-            url = 'https://k-w-h.com/deliveryrequest/newpickup'
+            url = 'https://corporate.saeex.com/deliveryrequest/newpickup'
             data = {
                 secret: process.env.SAEE_KEY_P,
                 cashonpickup: 0,
@@ -40,7 +40,7 @@ exports.createUserOrder = async (req, res) => {
                 // sendercountry: "SA"
             }
         } else {
-            url = 'https://k-w-h.com/deliveryrequest/new'
+            url = 'https://corporate.saeex.com/deliveryrequest/new'
             data = {
                 secret: process.env.SAEE_KEY_P,
                 cashonpickup: 0,
@@ -64,7 +64,7 @@ exports.createUserOrder = async (req, res) => {
         const config = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json;charset=utf-8' },
-            url: 'https://corporate.saeex.com/deliveryrequest/newpickup',
+            url: url,
             data: data
         }
         const response = await axios(config)
