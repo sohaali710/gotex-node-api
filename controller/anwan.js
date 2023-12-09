@@ -16,7 +16,7 @@ exports.createUserOrder = async (req, res) => {
     try {
         if (cod) {
             var BookingMode = "COD"
-            var codValue = res.locals.codAmount;;
+            var codValue = res.locals.codAmount;
             var paytype = "cod";
         } else {
             var BookingMode = "CC"
@@ -69,6 +69,7 @@ exports.createUserOrder = async (req, res) => {
             paytype: paytype,
             data: response.data,
             price: totalShipPrice,
+            codPrice: res.locals.codAmount,
             marktercode: markterCode,
             createdate: new Date()
         })

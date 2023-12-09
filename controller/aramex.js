@@ -235,6 +235,7 @@ exports.createOrder = async (req, res) => {
             data: response.data,
             paytype,
             price: totalShipPrice,
+            codPrice: res.locals.codAmount,
             createdate: new Date()
         })
 

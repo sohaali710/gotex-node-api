@@ -104,6 +104,7 @@ exports.createNewOrder = async (req, res) => {
                 },
                 paytype: paytype,
                 price: totalShipPrice,
+                codPrice: res.locals.codAmount,
                 marktercode: markterCode,
                 createdate: new Date()
                 // inovicedaftra: invo
