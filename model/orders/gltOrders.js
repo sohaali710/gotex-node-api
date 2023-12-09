@@ -7,6 +7,7 @@ const gltOrderSchema = mongoose.Schema({
     data: Object,
     paytype: String,
     price: Number,
+    codPrice: Number,
     marktercode: String,
     createdate: String,
     inovicedaftra: Object,
