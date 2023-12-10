@@ -7,8 +7,10 @@ const imileOrderSchema = mongoose.Schema({
     data: Object,
     paytype: String,
     price: Number,
+    codPrice: Number,
     marktercode: String,
     createdate: String,
+    created_at: Date,
     inovicedaftra: Object,
     status: {
         type: String,

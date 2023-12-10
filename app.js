@@ -7,10 +7,10 @@ const multer = require('multer')
 const cors = require('cors');
 let morgan = require('morgan')
 app.use(morgan('combined'))
-
 const { dbConnection } = require('./db/mongoose');
 const { upload, uploadClintReceipts } = require('./middleware/fileUpload')
 const PORT = process.env.PORT
+app.set("view engine", "ejs");
 
 const adminRoute = require('./routes/admin')
 const userRoute = require('./routes/user')

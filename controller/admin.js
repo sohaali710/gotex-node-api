@@ -16,7 +16,7 @@ const Jt = require("../model/companies/jt");
 const Saee = require("../model/companies/saee");
 const Smsa = require("../model/companies/smsa");
 const Spl = require("../model/companies/spl");
-
+const paginate = require("../modules/paginate");
 
 
 exports.logIn = (req, res) => {
@@ -170,6 +170,193 @@ exports.getAllOrders = async (req, res) => {
         console.log(err);
         res.status(500).json({
             msg: "server error",
+            error: err.message
+        })
+    }
+}
+
+/**
+ * @Desc :  Filter with company, paytype, billCode or keyword (user data -> name, email or mobile)
+ *        + Filter by date
+ *        + Pagination
+ */
+exports.allOrders = async (req, res) => {
+    /** Pagination -> default: page=1, limit=30 (max number of items (orders) per page)*/
+    let page = +req.query.page || 1
+    const limit = +req.query.limit || 30
+    const startDate = req.query.startDate || new Date('2000-01-01')
+    const endDate = req.query.endDate || new Date()
+    const { company, paytype = '', billCode = '', keyword = '' } = req.query
+
+    try {
+        const anwanOrders = AnwanOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },// $options: 'i' to make it case-insensitive (accept capital or small chars)
+            "data.awb_no": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            /**@Desc if users.name or user.email != keyword, it returns user=null */
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const aramexOrders = AramexOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.Shipments.ID": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const imileOrders = ImileOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.data.expressNo": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const jtOrders = JtOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.data.billCode": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const saeeOrders = SaeeOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.waybill": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const smsaOrders = SmsaOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.sawb": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+        const splOrders = SplOrders.find({
+            paytype: { $regex: paytype, $options: 'i' },
+            "data.Items.Barcode": { $regex: billCode, $options: 'i' },
+            created_at: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            status: { $ne: "failed" }
+        }).populate({
+            path: 'user',
+            match: {
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { email: { $regex: keyword, $options: 'i' } },
+                    { mobile: { $regex: keyword, $options: 'i' } }
+                ]
+            }
+        });
+
+        /** Filter by company */
+        let orders = []
+        switch (company) {
+            case 'anwan':
+                orders = await anwanOrders
+                break;
+            case 'aramex':
+                orders = await aramexOrders
+                break;
+            case 'imile':
+                orders = await imileOrders
+                break;
+            case 'jt':
+                orders = await jtOrders
+                break;
+            case 'saee':
+                orders = await saeeOrders
+                break;
+            case 'smsa':
+                orders = await smsaOrders
+                break;
+            case 'spl':
+                orders = await splOrders
+                break;
+            default:
+                // Use promise.all to ensure that these promises are executed in parallel.
+                const [anwanOrdersRes, aramexOrdersRes, imileOrdersRes, jtOrdersRes, saeeOrdersRes, smsaOrdersRes, splOrdersRes] = await Promise.all([anwanOrders, aramexOrders, imileOrders, jtOrders, saeeOrders, smsaOrders, splOrders]);
+                orders = [...anwanOrdersRes, ...saeeOrdersRes, ...aramexOrdersRes, ...smsaOrdersRes, ...imileOrdersRes, ...jtOrdersRes, ...splOrdersRes];
+                break;
+        }
+
+        if (keyword) {
+            orders = orders.filter(order => order.user) // filter orders to remove user=null
+        }
+
+        const ordersPagination = paginate(orders, page, limit)
+        res.status(200).json({ ...ordersPagination })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
             error: err.message
         })
     }
