@@ -103,7 +103,6 @@ exports.createUserOrder = async (req, res) => {
             data: response.data,
             price: totalShipPrice,
             codPrice: res.locals.codAmount,
-            createdate: new Date(),
             created_at: new Date()
         })
 
