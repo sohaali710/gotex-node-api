@@ -71,7 +71,8 @@ exports.createUserOrder = async (req, res) => {
             price: totalShipPrice,
             codPrice: res.locals.codAmount,
             marktercode: markterCode,
-            createdate: new Date()
+            createdate: new Date(),
+            created_at: new Date()
         })
 
         if (response.data.status !== 200) {

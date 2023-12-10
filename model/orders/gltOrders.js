@@ -10,6 +10,7 @@ const gltOrderSchema = mongoose.Schema({
     codPrice: Number,
     marktercode: String,
     createdate: String,
+    created_at: Date,
     inovicedaftra: Object,
     status: {
         type: String,

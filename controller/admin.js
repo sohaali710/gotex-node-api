@@ -177,7 +177,7 @@ exports.getAllOrders = async (req, res) => {
 }
 
 /**
- * @Desc :  Filter with company, paytype or keyword (user data -> name, email or mobile)
+ * @Desc :  Filter with company, paytype, billCode or keyword (user data -> name, email or mobile)
  *        + Filter by date
  *        + Pagination
  */
@@ -185,18 +185,18 @@ exports.allOrders = async (req, res) => {
     /** Pagination -> default: page=1, limit=30 (max number of items (orders) per page)*/
     let page = +req.query.page || 1
     const limit = +req.query.limit || 30
-    const startDate = req.query.startDate || new Date('2000-01-01')
-    const endDate = req.query.endDate || new Date()
+    // const startDate = req.query.startDate || new Date('2000-01-01')
+    // const endDate = req.query.endDate || new Date()
     const { company, paytype = '', billCode = '', keyword = '' } = req.query
 
     try {
         const anwanOrders = AnwanOrders.find({
             paytype: { $regex: paytype, $options: 'i' },// $options: 'i' to make it case-insensitive (accept capital or small chars)
             "data.awb_no": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -212,10 +212,10 @@ exports.allOrders = async (req, res) => {
         const aramexOrders = AramexOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.Shipments.ID": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -230,10 +230,10 @@ exports.allOrders = async (req, res) => {
         const imileOrders = ImileOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.data.expressNo": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -248,10 +248,10 @@ exports.allOrders = async (req, res) => {
         const jtOrders = JtOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.data.billCode": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -266,10 +266,10 @@ exports.allOrders = async (req, res) => {
         const saeeOrders = SaeeOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.waybill": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -284,10 +284,10 @@ exports.allOrders = async (req, res) => {
         const smsaOrders = SmsaOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.sawb": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -302,10 +302,10 @@ exports.allOrders = async (req, res) => {
         const splOrders = SplOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
             "data.Items.Barcode": { $regex: billCode, $options: 'i' },
-            created_at: {
-                $gte: startDate,
-                $lte: endDate
-            },
+            // created_at: {
+            //     $gte: startDate,
+            //     $lte: endDate
+            // },
             status: { $ne: "failed" }
         }).populate({
             path: 'user',
@@ -348,6 +348,11 @@ exports.allOrders = async (req, res) => {
                 orders = [...anwanOrdersRes, ...saeeOrdersRes, ...aramexOrdersRes, ...smsaOrdersRes, ...imileOrdersRes, ...jtOrdersRes, ...splOrdersRes];
                 break;
         }
+        // console.log(orders.createdate)
+        orders.forEach(async (order) => {
+            order.created_at = new Date(order.createdate)
+            await order.save()
+        })
 
         if (keyword) {
             orders = orders.filter(order => order.user) // filter orders to remove user=null
