@@ -3,7 +3,7 @@ const routes = express.Router();
 const { signUp, marketerSignUp, logIn, activateUser, reSendActivateCode, forgetPasswordEmail, setNewPassword, getUserBalance, addBalance, checkPaymentOrder, getAllPaymentOrders, generateApiKeyForTest, generateApiKeyForProduction, getUserData } = require("../controller/user");
 const { isValid, isAuth } = require('../middleware/user');
 const { isValid: isValidApi } = require("../middleware/api-test");
-const { userCharge, checkPayment, getUserPaymentOrders } = require("../controller/payment/main");
+const { userCharge, checkPayment, getUserPaymentOrders, checkFawryPayment } = require("../controller/payment/main");
 
 routes.post('/signup', isValid, signUp);
 routes.post('/login', logIn);
