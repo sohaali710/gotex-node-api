@@ -109,7 +109,6 @@ exports.checkPayment = async (req, res) => {
         const order = await PaymentOrder.findOne({ code });
         const user = await User.findById(userId);
 
-
         if (!order) {
             return res.render("payment-result", {
                 text1: `Failed, this payment order is not found`,
