@@ -109,12 +109,9 @@ exports.checkPayment = async (req, res) => {
         const order = await PaymentOrder.findOne({ code });
         const user = await User.findById(userId);
 
-        const charge = await getCharge(order.data.id)
-        const currentStatus = charge.data.status
-
         if (!order) {
             return res.render("payment-result", {
-                text1: `Your charge status is Failed`,
+                text1: `Failed, this payment order is not found`,
                 text2: `Your wallet is = `,
                 balance: user.wallet
             })
@@ -122,6 +119,9 @@ exports.checkPayment = async (req, res) => {
                 data: "failed"
             })
         }
+
+        const charge = await getCharge(order.data.id)
+        const currentStatus = charge.data.status
 
         if (currentStatus != "CAPTURED") {
             return res.render("payment-result", {
