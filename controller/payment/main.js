@@ -70,7 +70,8 @@ exports.userCharge = async (req, res) => {
             data: response.data,
             amount: amount,
             code: code,
-            status: "pending"
+            status: "pending",
+            created_at: new Date(),
         })
 
         res.status(200).json({ data: response.data })
@@ -164,7 +165,7 @@ exports.checkPayment = async (req, res) => {
 
 exports.getUserPaymentOrders = async (req, res) => {
     const userId = req.user.user.id;
-    const orders = await PaymentOrder.find({ user: userId });
+    const orders = await PaymentOrder.find({ user: userId }).sort({ created_at: -1 });
     try {
         res.status(200).json({
             data: orders
