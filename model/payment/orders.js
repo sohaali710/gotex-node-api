@@ -5,6 +5,7 @@ const orderSchema = mongoose.Schema({
     data: Object,
     amount: Number,
     code: String,
-    status: String
+    status: String,
+    created_at: Date
 })
 module.exports = mongoose.model("paymentOrder", orderSchema);

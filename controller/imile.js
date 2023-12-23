@@ -237,7 +237,7 @@ exports.getSticker = async (req, res) => {
         if (response.data.message !== 'success') {
             return res.status(400).json({ msg: response.data })
         }
-
+        // return res.status(200).redirect(response.data.data[0].label)
         return res.status(200).json({ billUrl: response.data.data[0].label })
     } catch (err) {
         console.log(err)
