@@ -432,64 +432,6 @@ exports.createPickup = async (req, res) => {
         })
     }
 }
-exports.cancelOrder = async (req, res) => {
-    let { orderId, userId } = req.body;
-    try {
-        const order = await AramexOrders.findById(orderId);
-        if (!order || order.user != userId) {
-            return res.status(400).json({
-                err: "order not found"
-            })
-        }
-
-        const shipmentDate = Date.now();
-        var data = JSON.stringify({
-            "ClientInfo": {
-                "UserName": process.env.AR_USERNAME,
-                "Password": process.env.AR_PASSWORD,
-                "Version": "v1.0",
-                "AccountNumber": process.env.AR_ACCOUNT,
-                "AccountPin": process.env.AR_PIN,
-                "AccountEntity": "JED",
-                "AccountCountryCode": "SA",
-                "Source": 24,
-                "PreferredLanguageCode": null
-            },
-            "Comments": "Test",
-            "PickupGUID": "", // TODO
-            "Transaction": {
-                "Reference1": "",
-                "Reference2": "",
-                "Reference3": "",
-                "Reference4": "",
-                "Reference5": ""
-            }
-        });
-
-        var config = {
-            method: 'post',
-            url: 'https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc/json/CreateShipments',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-        const response = await axios(config)
-
-        if (response.data.HasErrors) {
-            return res.status(400).json({ msg: response.data })
-        }
-
-        order.status = 'canceled'
-        await order.save()
-        res.status(200).json({ msg: "order canceled successfully" })
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err.message
-        })
-    }
-}
 
 exports.getCities = async (req, res) => {
     try {
