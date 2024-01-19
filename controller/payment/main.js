@@ -59,7 +59,7 @@ exports.userCharge = async (req, res) => {
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
-                Authorization: 'Bearer sk_test_iN3MadpErZUhYeIV9WCvXOo4'
+                Authorization: process.env.TAP_TOKEN
             },
             data: data
         };
@@ -90,7 +90,7 @@ const getCharge = (chargeId) => {
             url: `https://api.tap.company/v2/charges/${chargeId}`,
             headers: {
                 accept: 'application/json',
-                Authorization: 'Bearer sk_test_iN3MadpErZUhYeIV9WCvXOo4'
+                Authorization: process.env.TAP_TOKEN
             }
         };
 

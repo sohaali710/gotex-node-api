@@ -17,6 +17,7 @@ exports.createUserOrder = async (req, res) => {
 
     const user = await User.findById(userId);
     let ordersNum = await SaeeOrder.count();
+    console.log(process.env.SAEE_KEY_P)
 
     try {
         const paytype = cod ? "cod" : "cc";
