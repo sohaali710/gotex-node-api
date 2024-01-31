@@ -232,7 +232,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const aramexOrders = AramexOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -250,7 +251,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const imileOrders = ImileOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -268,7 +270,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const jtOrders = JtOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -286,7 +289,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const saeeOrders = SaeeOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -304,7 +308,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const smsaOrders = SmsaOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -322,7 +327,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
         const splOrders = SplOrders.find({
             paytype: { $regex: paytype, $options: 'i' },
@@ -340,7 +346,8 @@ exports.allOrders = async (req, res) => {
                     { email: { $regex: keyword, $options: 'i' } },
                     { mobile: { $regex: keyword, $options: 'i' } }
                 ]
-            }
+            },
+            select: "name email mobile"
         });
 
         /** Filter by company */
