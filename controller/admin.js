@@ -155,16 +155,41 @@ exports.getAllCompanies = async (req, res) => {
 //  */
 exports.getAllOrders = async (req, res) => {
     try {
-        const anwanOrders = await AnwanOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const aramexOrders = await AramexOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const gltOrders = await GltOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const imileOrders = await ImileOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const jtOrders = await JtOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const saeeOrders = await SaeeOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const smsaOrders = await SmsaOrders.find({ status: { $ne: "failed" } }).populate("user");
-        const splOrders = await SplOrders.find({ status: { $ne: "failed" } }).populate("user");
+        const anwanOrdersPromise = AnwanOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const aramexOrdersPromise = AramexOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const gltOrdersPromise = GltOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const imileOrdersPromise = ImileOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const jtOrdersPromise = JtOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const saeeOrdersPromise = SaeeOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const smsaOrdersPromise = SmsaOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
+        const splOrdersPromise = SplOrders.find({ status: { $ne: "failed" } }).populate({
+            path: 'user',
+            select: "name email mobile"
+        });
 
-        let orders = [...anwanOrders, ...aramexOrders, ...gltOrders, ...imileOrders, ...jtOrders, ...saeeOrders, ...smsaOrders, ...splOrders];
+        const [anwanOrders, aramexOrders, gltOrders, imileOrders, jtOrders, saeeOrders, smsaOrders, splOrders] = await Promise.all([anwanOrdersPromise, aramexOrdersPromise, gltOrdersPromise, imileOrdersPromise, jtOrdersPromise, saeeOrdersPromise, smsaOrdersPromise, splOrdersPromise]);
+        const orders = [...anwanOrders, ...aramexOrders, ...gltOrders, ...imileOrders, ...jtOrders, ...saeeOrders, ...smsaOrders, ...splOrders];
         res.status(200).json({ data: { orders } })
     } catch (err) {
         console.log(err);
